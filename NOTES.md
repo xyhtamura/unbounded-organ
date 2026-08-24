@@ -213,3 +213,70 @@ errors.
 overrun, since provoking one means rendering multi-gigabyte files. A larger
 container (RF64, CAF) is still unsupported; the route shortens the file instead,
 which is honest but loses the rest of the cycle.
+
+### 2026-08-24 — Claude Code — skinned for public release
+
+Design decided with Xyh against `principles/`: **organ console as a single
+body**, **continuous drift**, **lightness mixed by function**, **organ materials
+lightly infected**. The four answers came from the four questions in
+`xyh-design-fallbacks.md` §7, in that order.
+
+**What the previous skin was.** Close to a list of the recoils in
+`xyh-design-calibration.md`: a near-achromatic ground (`#0d0f12` / `#e6ebf2`),
+generic dashboard blue, sections numbered 1–7, a 4/8/12 radius ladder, and Space
+Grotesk. One item was a *semantic* error rather than taste — NOTE/ECHO/DRIFT
+were green/amber/red, which reads as a severity ramp. They are three kinds of
+thing, not three degrees of a bad one.
+
+**Palette.** Green-black lacquer field, ochre-bone console furniture, violet-cast
+lead-tin metal, and rose for the one loud gesture. Four poles occupied, nothing
+zero-chroma, and the combination is not analogous, not complementary, not
+warm/cool as the primary logic. The three kinds are now amber / aqua / blurple —
+the fallback triad, chosen because it implies no ordering.
+
+**Lightness mixed by function, not by theme.** Pale engraved furniture is what
+you touch; the dark lacquered field is what you read. There is no light/dark
+switch and no `prefers-color-scheme` block: the instrument commits to one
+material world and paints every colour explicitly.
+
+**The surface drifts.** `src/skin.js` pushes three custom properties onto the
+root and the stylesheet reads them; it touches neither the physics nor the audio,
+and deleting it leaves a working, plain instrument.
+
+- `--drift` runs 0→1 with log length. Console chroma thins from `saturate(1)` to
+  `saturate(0.5)` as the pipe outgrows the air it was meant to sound in.
+- `--breath` is the pipe's period, **log-compressed**, and the panels breathe at
+  it. First implementation clamped the raw period instead and was wrong: it
+  pinned at the ceiling from about 4.5 km onward, so the breath stopped tracking
+  the pipe across almost the whole range. Since period = 2L/c, log-period is
+  log-length shifted by a constant, so mapping drift onto the range is exactly a
+  linear map of log-period. Measured across the range: 2.60 → 8.54 → 14.86 →
+  19.05 → 24.07 → 26.00 s.
+- `--kind` tints the readout window by category.
+
+**Anti-lattice.** Every panel has a different corner cut, no two radii repeat,
+metric cards rotate their radii on `nth-child`, and the field is two very large
+off-centre pools rather than any pattern. Section numbering is gone: they are
+named regions of an instrument (*The pipe*, *The air*, *Where it runs out*)
+because you move between them freely rather than in sequence.
+
+**Type.** Averia Gruesa Libre / Averia Sans Libre / Averia Serif Libre / Syne
+Mono, all from the fallback stack. All four confirmed loading.
+
+**Verified.** Contrast measured through a canvas rather than eyeballed — the
+first probe read OKLCH components as RGB and reported nonsense. Every text pair
+clears AA: standfirst 7.79, panel copy 4.68, headings 11.70, readout 14.70, ink
+on bone 11.91, chips 6.79–10.06. The rose button needed darkening; white on its
+lightest stop was 3.31 and is now 4.70. No page-level horizontal scroll at 1280
+or 375, where the table scrolls in its own box. All 116 tests still pass.
+
+**Not verified: the breath in motion.** This browser reports
+`prefers-reduced-motion: reduce`, so the animation is correctly suppressed and I
+could not watch it. The keyframes are defined, the rule carries the right
+duration, and the shadow interpolation was confirmed by driving the same
+keyframes directly. **Someone needs to look at it on a machine without
+reduced-motion set** and judge whether 2.6–26 s reads as breath or as drift.
+
+**Undone for release.** No favicon. No `README.md` for people arriving at the
+repository. Not published — this repo has no remote, and Pages would serve it at
+`/unbounded-organ/`, which is already how it resolves locally.

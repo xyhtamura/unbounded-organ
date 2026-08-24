@@ -11,6 +11,7 @@ import {
   FOOT_M,
 } from './physics.js';
 import { PRESETS, presetById, toAtmosphere } from './atmospheres.js';
+import { applySkin, kindClassFor } from './skin.js';
 import {
   describeDigitalMedium,
   quoteRenderCost,
@@ -266,7 +267,11 @@ function updateUi() {
   // Categorical State
   const cat = medDesc.category;
   els.categoryChip.textContent = cat.toUpperCase();
-  els.categoryChip.className = `chip chip-category chip-${cat}`;
+  els.categoryChip.className = kindClassFor(cat);
+
+  // The surface drifts with the pipe: chroma thins as it outgrows the air,
+  // and the console breathes at the pipe's own period. See src/skin.js.
+  applySkin({ lengthM, category: cat });
   if (cat === 'note') {
     els.categoryNote.textContent = 'Pitch percept survives. Sparse harmonic modes.';
   } else if (cat === 'echo') {

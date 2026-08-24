@@ -7,7 +7,7 @@
   <meta name="description" content="An organ model with no range restriction, evaluated at any pipe length and rendered at whatever rate it produces.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Averia+Sans+Libre:wght@400;700&family=Averia+Serif+Libre:ital,wght@0,400;0,700;1,400&family=Averia+Gruesa+Libre&family=Syne+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,9 +16,20 @@
   <div class="masthead-inner">
     <h1>The Unbounded Organ</h1>
     <p class="standfirst">
-      An organ model with no range restriction, evaluated at any pipe length from 8.575 mm to 40,075 km and rendered at whatever rate it produces. One physical waveguide specification, evaluated across length: at metres it yields a <strong>note</strong>, at kilometres an <strong>echo</strong>, and at planetary radius an ultra-slow <strong>drift</strong>.
-      <span class="masthead-links"><a href="explainer.html" class="doc-link">Read Concepts &amp; Architecture &rarr;</a></span>
+      An organ pipe, run as a digital waveguide, at any length from 8.575&nbsp;mm to
+      Earth&rsquo;s circumference. The specification never changes; what comes out of it
+      does. At metres it is a <strong>note</strong>. At kilometres, an <strong>echo</strong>.
+      At planetary radius, a <strong>drift</strong> one cycle of which takes hours.
     </p>
+    <p class="standfirst">
+      Past 53.8&nbsp;km the air stops carrying the fundamental altogether. The instrument
+      marks that boundary and lets you cross it anyway &mdash; and renders what it finds
+      on the other side to a file no ear can receive.
+    </p>
+    <nav class="masthead-links">
+      <a href="explainer.html" class="doc-link">Concepts &amp; architecture &rarr;</a>
+      <a href="../planetary-organs/" class="doc-link">Sibling instrument &rarr;</a>
+    </nav>
   </div>
 </header>
 
@@ -27,7 +38,7 @@
   <!-- ================= 1. PIPE & CATEGORY ================= -->
   <section class="panel panel-pipe" aria-labelledby="h-pipe">
     <div class="panel-header">
-      <h2 id="h-pipe">1. Pipe &amp; Categorical State</h2>
+      <h2 id="h-pipe">The pipe</h2>
     </div>
 
     <div class="length-controls">
@@ -85,7 +96,7 @@
   <!-- ================= 2. DIGITAL MEDIUM ================= -->
   <section class="panel panel-digital-medium" aria-labelledby="h-digital">
     <div class="panel-header">
-      <h2 id="h-digital">2. Digital Medium (The Apparatus)</h2>
+      <h2 id="h-digital">The apparatus &mdash; a second atmosphere</h2>
     </div>
     <p class="panel-description">
       The digital apparatus is a second atmosphere with its own parameters. Sample rate dictates which modes resolve; bit depth sets the quantization noise floor.
@@ -131,7 +142,7 @@
   <!-- ================= 3. WAVEGUIDE & INTERPOLATOR ================= -->
   <section class="panel panel-waveguide" aria-labelledby="h-waveguide">
     <div class="panel-header">
-      <h2 id="h-waveguide">3. Waveguide Resonator &amp; Measured Interpolator</h2>
+      <h2 id="h-waveguide">The resonator</h2>
     </div>
     <p class="panel-description">
       1D bidirectional delay line. The fractional delay interpolator is measured directly: its phase delay varies with frequency, causing the mode series to deviate from exact harmonics.
@@ -170,7 +181,7 @@
   <!-- ================= 4. ATMOSPHERE ================= -->
   <section class="panel panel-atmosphere" aria-labelledby="h-atmosphere">
     <div class="panel-header">
-      <h2 id="h-atmosphere">4. Physical Atmosphere</h2>
+      <h2 id="h-atmosphere">The air</h2>
     </div>
     <p class="panel-description">
       Three parameters: heat ratio γ, gravity g, sound speed c.
@@ -220,7 +231,7 @@
   <!-- ================= 5. FIVE LIMITS MATRIX ================= -->
   <section class="panel panel-limits" aria-labelledby="h-limits">
     <div class="panel-header">
-      <h2 id="h-limits">5. Five Limits Matrix</h2>
+      <h2 id="h-limits">Where it runs out</h2>
     </div>
     <p class="panel-description">
       Independent failures across physical theory and discrete digital representation.
@@ -252,7 +263,7 @@
   <!-- ================= 6. OFFLINE RENDER ================= -->
   <section class="panel panel-render" aria-labelledby="h-render">
     <div class="panel-header">
-      <h2 id="h-render">6. Offline Waveguide Render</h2>
+      <h2 id="h-render">Render</h2>
     </div>
     <p class="panel-description">
       Offline, non-realtime rendering of the waveguide running sample-by-sample. Partial renders are first-class. Costs are quoted before starting.
@@ -320,7 +331,7 @@
   <!-- ================= 7. SCORE EXPORT ================= -->
   <section class="panel panel-score" aria-labelledby="h-score">
     <div class="panel-header">
-      <h2 id="h-score">7. Composition Specification Score</h2>
+      <h2 id="h-score">The score</h2>
       <div class="score-actions">
         <button type="button" id="btn-copy-score" class="btn btn-sm">Copy Score</button>
         <button type="button" id="btn-download-score" class="btn btn-sm">Download .md</button>
@@ -337,7 +348,16 @@
 
 <footer class="site-footer">
   <div class="container">
-    <p>The Unbounded Organ — Sibling to <a href="../planetary-organs/">Mass: Planetary Organs</a>. <a href="explainer.html">Concepts &amp; Architecture</a> &bull; Evaluated under pure waveguide mechanics.</p>
+    <p>
+      The pipe is a delay line of <code>2L/c</code>; its reflection signs produce the
+      mode series rather than being told it. The atmosphere is computed and reported,
+      never consulted by the audio &mdash; a waveguide models a tube, not air, so past
+      the cutoff it renders faithfully a note the medium would refuse.
+    </p>
+    <p>
+      Thresholds from <a href="../planetary-organs/">Mass: Planetary Organs</a>, whose
+      physics this shares. <a href="explainer.html">Concepts &amp; architecture</a>.
+    </p>
   </div>
 </footer>
 
