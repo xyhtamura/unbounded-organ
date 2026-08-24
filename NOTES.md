@@ -8,6 +8,7 @@ rendered at whatever rate it produces.
 - Physics: [`../physics/projects/planetary-organs/`](../physics/projects/planetary-organs/)
 - Claims: `PORG-*` in [`../physics/CLAIMS.md`](../physics/CLAIMS.md)
 - Shared contract: `src/physics.js` vendored from `planetary-organs/src/physics.js`, tracked in [`../DEPENDENCIES.md`](../DEPENDENCIES.md).
+- **This folder is its own git repository** as of 2026-08-24, so the root repo does not see it and `git log` here is this project's history. Rendered WAVs are gitignored: they run to hundreds of megabytes and are reproducible from the score.
 
 ## The result the tool is built on
 
