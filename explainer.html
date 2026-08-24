@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Unbounded Organ — Concepts &amp; Architecture</title>
+  <meta name="description" content="Physics, computer science, and psychoacoustic concepts governing The Unbounded Organ.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Space+Grotesk:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    :root {
+      --bg: #0e1217;
+      --panel: #161b22;
+      --card: #1f242d;
+      --border: #2d333f;
+      --border-subtle: #21262d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --text-dim: #6e7681;
+      
+      --accent: #58a6ff;
+      --note: #3fb950;
+      --echo: #d29922;
+      --drift: #f85149;
+
+      --font-serif: 'Newsreader', Georgia, serif;
+      --font-sans: 'Space Grotesk', -apple-system, sans-serif;
+      --font-mono: 'Share Tech Mono', monospace;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f6f8fa;
+        --panel: #ffffff;
+        --card: #f0f2f5;
+        --border: #d0d7de;
+        --border-subtle: #e1e4e8;
+        --text: #1f2328;
+        --text-muted: #57606a;
+        --text-dim: #8c959f;
+        
+        --accent: #0969da;
+        --note: #1a7f37;
+        --echo: #9a6700;
+        --drift: #cf222e;
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-serif);
+      font-size: 19px;
+      line-height: 1.68;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 60px 24px 100px;
+    }
+
+    header.doc-header {
+      margin-bottom: 48px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 32px;
+    }
+
+    .back-link {
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    h1 {
+      font-family: var(--font-sans);
+      font-size: 2.5rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    .subtitle {
+      font-family: var(--font-sans);
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    h2 {
+      font-family: var(--font-sans);
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin: 48px 0 16px;
+      color: var(--text);
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      font-family: var(--font-sans);
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 28px 0 12px;
+      color: var(--text);
+    }
+
+    p {
+      margin-bottom: 20px;
+    }
+
+    ul, ol {
+      margin: 0 0 20px 28px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.88em;
+      background-color: var(--card);
+      border: 1px solid var(--border-subtle);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    pre {
+      background-color: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+      line-height: 1.45;
+    }
+
+    .callout {
+      background-color: var(--panel);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      padding: 16px 20px;
+      margin: 24px 0;
+      font-size: 0.95em;
+    }
+
+    .callout.note { border-left-color: var(--note); }
+    .callout.warn { border-left-color: var(--echo); }
+    .callout.alert { border-left-color: var(--drift); }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      margin: 28px 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .matrix-table th, .matrix-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .matrix-table th {
+      background-color: var(--panel);
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .matrix-table tr:nth-child(even) td {
+      background-color: var(--panel);
+    }
+
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+    .tag-note { background: rgba(63, 185, 80, 0.15); color: var(--note); }
+    .tag-echo { background: rgba(210, 153, 34, 0.15); color: var(--echo); }
+    .tag-drift { background: rgba(248, 81, 73, 0.15); color: var(--drift); }
+
+    .diagram {
+      background-color: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 24px;
+      margin: 28px 0;
+      text-align: center;
+    }
+
+    .diagram svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    footer.doc-footer {
+      margin-top: 64px;
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      font-family: var(--font-sans);
+      font-size: 0.88rem;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="doc-header">
+    <a href="./" class="back-link">&larr; Back to The Unbounded Organ</a>
+    <h1>Where the Model Changes Kind</h1>
+    <p class="subtitle">
+      A technical breakdown of the acoustic physics, digital waveguide signal processing, and psychoacoustic boundaries governing The Unbounded Organ.
+    </p>
+  </header>
+
+  <main>
+
+    <section>
+      <h2>0. The Governing Invariance</h2>
+      <p>
+        Most musical instruments define a working range and truncate everything outside it. <strong>The Unbounded Organ</strong> does the opposite: it fixes a single, elementary 1D acoustic waveguide specification and evaluates it continuously across 10 orders of magnitude in pipe length—from <strong>8.575 millimetres</strong> (the 20 kHz ceiling of hearing) to <strong>40,075 kilometres</strong> (the circumference of the Earth).
+      </p>
+      <p>
+        The central claim of the piece is <em>categorical drift</em>: the mathematical model never adapts, branches, or modifies its rules. Yet as length $L$ scales, the output shifts from a musical <strong>note</strong>, to a series of discrete <strong>echoes</strong>, to an ultra-slow planetary <strong>drift</strong>.
+      </p>
+      
+      <div class="callout note">
+        <strong>The Invariant Loop:</strong> At every length, the core simulation consists of exactly one circular buffer step:
+        $$y[n] = x[n] + g \cdot y[n - D]$$
+        where $D = \frac{2L}{c} f_s$ is the round-trip sample delay, $x[n]$ is the excitation, and $g$ is the boundary reflection gain.
+      </div>
+    </section>
+
+    <section>
+      <h2>1. Acoustic Physics (The Continuous Medium)</h2>
+      
+      <h3>1.1 The 1D Wave Equation and Pipe Resonances</h3>
+      <p>
+        Sound propagation in an idealized 1D acoustic column of air is governed by the second-order wave equation:
+      </p>
+      $$\frac{\partial^2 p}{\partial t^2} = c^2 \frac{\partial^2 p}{\partial x^2}$$
+      <p>
+        where $p(x, t)$ is acoustic acoustic gauge pressure and $c$ is the adiabatic speed of sound ($c \approx 343\text{ m/s}$ in dry air at 20 °C).
+      </p>
+      <p>
+        By d'Alembert's classical solution, any pressure disturbance decomposes into forward- and backward-traveling waves: $p(x, t) = p^+(t - x/c) + p^-(t + x/c)$. When these traveling waves strike the ends of the pipe, boundary reflection coefficients $r_1$ and $r_2$ determine the resonant frequencies:
+      </p>
+      <ul>
+        <li>
+          <strong>Open Pipe (Open-Open):</strong> Both ends open to atmospheric pressure ($p = 0$). Reflection inverts phase ($r_1 = -1, r_2 = -1$). The net round-trip reflection is $(-1) \times (-1) = +1$. Reinforcement occurs at round-trip time $\tau = 2L/c$, yielding all integer harmonics:
+          $$f_n = n \frac{c}{2L}, \quad n = 1, 2, 3, 4, \dots$$
+        </li>
+        <li>
+          <strong>Stopped Pipe (Open-Closed):</strong> One end open ($r_1 = -1$), one end rigidly capped ($r_2 = +1$). The net round-trip reflection is $(+1) \times (-1) = -1$. The wave must traverse the tube twice (four lengths, $\tau = 4L/c$) to return in-phase, producing only odd harmonics:
+          $$f_n = (2n - 1) \frac{c}{4L}, \quad n = 1, 2, 3, 4, \dots$$
+        </li>
+      </ul>
+
+      <h3>1.2 Stratified Atmosphere &amp; Acoustic Cutoff Frequency</h3>
+      <p>
+        In a real planetary atmosphere subject to surface gravity $g$, air density $\rho(z)$ is not constant—it falls exponentially with altitude according to the density scale height $H$:
+      </p>
+      $$H = \frac{c^2}{\gamma g}$$
+      <p>
+        where $\gamma = 1.4$ is the ratio of specific heats. For Earth, $H \approx 8.57\text{ km}$.
+      </p>
+      <p>
+        When gravity and exponential stratification are incorporated into the fluid momentum and continuity equations, vertical sound propagation exhibits a lower frequency cutoff—the <strong>vertical acoustic cutoff frequency $\omega_a$</strong>:
+      </p>
+      $$\omega_a = \frac{\gamma g}{2c} \implies f_a = \frac{\gamma g}{4\pi c}$$
+      <p>
+        On Earth, $f_a \approx 3.185\text{ mHz}$ (a period of $5.23\text{ minutes}$).
+      </p>
+      <div class="callout alert">
+        <strong>The Propagation Threshold ($L_{\text{crit}}$):</strong> Below $f_a$, vertical sound waves cannot radiate as propagating acoustic waves; their vertical wavenumber $k_z$ becomes purely imaginary ($k_z^2 < 0$), rendering disturbances <em>evanescent</em> (exponentially decaying).
+        <br><br>
+        A pipe longer than $L_{\text{crit}} = 2\pi H \approx 53.84\text{ km}$ (open) or $\pi H \approx 26.92\text{ km}$ (stopped) has a fundamental frequency below $f_a$, meaning its fundamental note <strong>cannot physically propagate through the atmosphere</strong>.
+      </div>
+
+      <h3>1.3 Physical Failure Boundaries</h3>
+      <ul>
+        <li>
+          <strong>Short-End Failure (End-Correction Error):</strong> Real organ pipes radiate from their open ends, which adds an effective acoustic mass making the pipe seem longer by $\delta \approx 0.61 a$ (where $a$ is the bore radius). The fractional frequency error is exactly $\delta / L$. At $L = 8.575\text{ mm}$ with a $1\text{ mm}$ bore, the error is $12\%$. Below roughly $1\text{ cm}$, the ideal 1D formula ceases to match physical pipes.
+        </li>
+        <li>
+          <strong>Long-End Failure (The Vacuum Limit):</strong> Above the K&aacute;rm&aacute;n line ($\sim 100\text{ km}$), Earth's atmosphere ceases to exist as a continuum medium. An Earth-radius pipe ($6,371\text{ km}$) has over $98.4\%$ of its length in vacuum.
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>2. Psychoacoustics (Perception &amp; Mode Density)</h2>
+
+      <h3>2.1 The Auditory Integration Window</h3>
+      <p>
+        The human auditory cortex processes periodic pulse trains through an integration window of roughly $50\text{ ms}$ ($20\text{ Hz}$):
+      </p>
+      <ul>
+        <li><strong>Repetition rates $> 20\text{ Hz}$ ($L < 8.575\text{ m}$):</strong> Individual acoustic pulses fuse into a continuous auditory percept: <strong>pitch</strong>.</li>
+        <li><strong>Repetition rates $< 20\text{ Hz}$ ($L > 8.575\text{ m}$):</strong> Pulses arrive slower than the integration window. Pitch fusion breaks down, resolving as rhythmic clicks or distinct discrete <strong>echoes</strong>.</li>
+      </ul>
+
+      <h3>2.2 Mode Density Collapse</h3>
+      <p>
+        In an open pipe, the frequency spacing between adjacent harmonic modes is constant: $\Delta f = f_1 = c / (2L)$.
+      </p>
+      <div class="matrix-table-wrap">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th>Length ($L$)</th>
+              <th>Fundamental ($f_1$)</th>
+              <th>Harmonics below 20 kHz</th>
+              <th>Perceptual Kind</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>2.44 m</strong> (8 ft)</td>
+              <td>70.33 Hz</td>
+              <td>284 modes</td>
+              <td><span class="tag tag-note">Note</span> Distinct pitch</td>
+            </tr>
+            <tr>
+              <td><strong>8.575 m</strong></td>
+              <td>20.00 Hz</td>
+              <td>1,000 modes</td>
+              <td><span class="tag tag-note">Note</span> The floor of hearing</td>
+            </tr>
+            <tr>
+              <td><strong>53.84 km</strong> ($L_{\text{crit}}$)</td>
+              <td>3.185 mHz</td>
+              <td>6,278,000 modes</td>
+              <td><span class="tag tag-echo">Echo</span> Diffuse reverberation</td>
+            </tr>
+            <tr>
+              <td><strong>6,371 km</strong> ($R_{\oplus}$)</td>
+              <td>26.92 µHz</td>
+              <td>743,000,000 modes</td>
+              <td><span class="tag tag-drift">Drift</span> Ultra-slow drift</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        At 53 kilometres, over 6 million harmonic modes exist in the audible spectrum. When excited by broadband energy (like a pulse or noise burst), thousands of modes overlap within every critical band of the cochlea. <strong>The pitch sensation is destroyed by mode density long before the atmosphere's acoustic cutoff is reached.</strong>
+      </p>
+    </section>
+
+    <section>
+      <h2>3. Computer Science &amp; DSP (The Discrete Medium)</h2>
+
+      <h3>3.1 Digital Waveguides vs. Additive Synthesis</h3>
+      <p>
+        In additive synthesis, sound is created by summing sinusoidal oscillators: $s(t) = \sum_{k=1}^N A_k \sin(2\pi k f_1 t)$.
+      </p>
+      <p>
+        For a $53.84\text{ km}$ pipe, rendering 6 million oscillators simultaneously is computationally intractable. An additive build would be forced to truncate the series (e.g. keeping only 64 partials). That truncation is an authored, artificial choice that obscures real physics.
+      </p>
+      <p>
+        A <strong>digital waveguide</strong> (Smith, 1992) solves this by discretizing the 1D traveling wave space into a circular delay ring buffer. Reading and writing to a delay line costs exactly $O(1)$ operations per sample, regardless of length. The millions of resonant modes emerge naturally from the constructive interference of the circulating feedback loop.
+      </p>
+
+      <h3>3.2 Fractional Delay &amp; Interpolator Inharmonicity</h3>
+      <p>
+        A continuous delay $\tau = 2L/c$ rarely falls on an integer number of discrete sample periods:
+      </p>
+      $$D = \tau \cdot f_s = M + d, \quad M = \lfloor D \rfloor, \quad d \in [0, 1)$$
+      <p>
+        To realize non-integer delay $d$, the waveguide uses a fractional interpolation filter (Linear FIR, 4-point cubic Lagrange FIR, or 1st-order Thiran Allpass IIR).
+      </p>
+      <div class="callout warn">
+        <strong>The Numerical End-Correction:</strong> An ideal delay line has a perfectly flat phase delay $\tau_p(\omega) = d$ at all frequencies. A real interpolator has a frequency-dependent phase response $\theta(\omega)$, meaning high-frequency modes experience slightly different effective loop lengths than low-frequency modes:
+        $$\tau_p(\omega) = -\frac{\theta(\omega)}{\omega} \implies f_n^{\text{realized}} = n f_1 \left(\frac{D}{\tau_p(\omega_n)}\right)$$
+        This frequency-dependent delay causes the simulated harmonic series to become slightly <strong>inharmonic</strong> ($\Delta f_n / n f_1$). In The Unbounded Organ, this numerical dispersion is measured and reported live as the exact discrete counterpart to the physical pipe end-correction.
+      </div>
+
+      <h3>3.3 Digital Medium as a Second Atmosphere</h3>
+      <p>
+        Just as air is defined by $(\gamma, g, c)$, the digital apparatus is defined by its own medium parameters: sample rate $f_s$ and bit depth.
+      </p>
+      <ul>
+        <li><strong>Nyquist Limit ($f_s / 2$):</strong> Hard mathematical boundary; modes above $f_s / 2$ cannot exist in discrete buffers.</li>
+        <li><strong>Memory Footprint:</strong> Delay state size is $S = \left(\frac{2L}{c} f_s\right) \times 8\text{ bytes}$. At $48\text{ kHz}$, an Earth-radius pipe demands $7.1\text{ GB}$ of RAM. Lowering $f_s$ to $10\text{ Hz}$ reduces state size to $1.5\text{ MB}$, making planetary rendering tractable without altering the physical algorithm.</li>
+        <li><strong>WAV RIFF 32-bit Container Limit:</strong> Standard WAV headers store file lengths in 32-bit unsigned integers, capping files at $4\text{ GiB}$.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>4. The Five Limits Matrix</h2>
+      <p>
+        The structural spine of the piece is that at both extremes of the length axis, the physical model and the digital representation fail independently and for unrelated reasons:
+      </p>
+
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th>Axis Extreme</th>
+            <th>The Physical Model Fails</th>
+            <th>The Digital Representation Fails</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Short Pipes</strong><br>($L \le 8.575\text{ mm}$)</td>
+            <td>
+              End-correction error grows as $\delta / L$ ($12\%$ error at $8.575\text{ mm}$ for $1\text{ mm}$ bore). The 1D ideal column model breaks down.
+            </td>
+            <td>
+              Delay buffer shrinks to $< 2$ samples. Pitch approaches the Nyquist frequency ($f_s / 2$).
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Long Pipes</strong><br>($L \ge 53.84\text{ km}$)</td>
+            <td>
+              Fundamental drops below the atmospheric acoustic cutoff $f_a$ ($3.185\text{ mHz}$). Past $100\text{ km}$, the medium ceases to exist (vacuum).
+            </td>
+            <td>
+              Delay buffer state exceeds browser RAM allocation ($> 2\text{ GB}$ at $48\text{ kHz}$). Render file size exceeds the 32-bit WAV container ($4\text{ GiB}$).
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <footer class="doc-footer">
+    <p>
+      The Unbounded Organ — Architecture Explainer &bull; Sibling to <a href="../planetary-organs/" style="color: var(--accent);">Mass: Planetary Organs</a>.
+    </p>
+  </footer>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "unbounded-organ",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "An organ model with no range restriction, evaluated at any pipe length and rendered at whatever rate it produces.",
+  "scripts": {
+    "test": "node test/physics.test.js && node test/waveguide.test.js && node test/interpolator.test.js && node test/wav.test.js && node test/render.test.js"
+  }
+}

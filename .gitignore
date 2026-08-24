@@ -1,0 +1,11 @@
+# Byte-compiled / caches
+__pycache__/
+*.pyc
+node_modules/
+
+# Rendered output. The instrument writes multi-hundred-megabyte WAVs by design;
+# they are reproducible from the score and must never enter history.
+*.wav
+*.rf64
+*.caf
+renders/

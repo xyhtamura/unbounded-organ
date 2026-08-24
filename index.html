@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Unbounded Organ</title>
+  <meta name="description" content="An organ model with no range restriction, evaluated at any pipe length and rendered at whatever rate it produces.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <h1>The Unbounded Organ</h1>
+    <p class="standfirst">
+      An organ model with no range restriction, evaluated at any pipe length from 8.575 mm to 40,075 km and rendered at whatever rate it produces. One physical waveguide specification, evaluated across length: at metres it yields a <strong>note</strong>, at kilometres an <strong>echo</strong>, and at planetary radius an ultra-slow <strong>drift</strong>.
+      <span class="masthead-links"><a href="explainer.html" class="doc-link">Read Concepts &amp; Architecture &rarr;</a></span>
+    </p>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ================= 1. PIPE & CATEGORY ================= -->
+  <section class="panel panel-pipe" aria-labelledby="h-pipe">
+    <div class="panel-header">
+      <h2 id="h-pipe">1. Pipe &amp; Categorical State</h2>
+    </div>
+
+    <div class="length-controls">
+      <div class="control-row">
+        <label for="length-slider" class="field-label">Pipe Length (8.575 mm – 40,075 km)</label>
+        <input type="range" id="length-slider" min="0" max="1000" step="0.1" value="384" aria-describedby="pitch-lead">
+      </div>
+
+      <div class="length-entry-row">
+        <div class="input-with-unit">
+          <input type="number" id="length-number" step="any" min="0.001" aria-label="Length value">
+          <select id="length-unit" aria-label="Length unit">
+            <option value="0.001">mm</option>
+            <option value="1" selected>m</option>
+            <option value="1000">km</option>
+            <option value="0.3048">ft</option>
+          </select>
+        </div>
+
+        <fieldset class="mode-toggle">
+          <legend class="visually-hidden">Pipe boundary condition</legend>
+          <label><input type="radio" name="pipe-mode" value="open" checked> Open (all harmonics)</label>
+          <label><input type="radio" name="pipe-mode" value="stopped"> Stopped (odd harmonics)</label>
+        </fieldset>
+      </div>
+
+      <p class="scale-note" id="length-scale-note">—</p>
+
+      <div class="quick-jumps-wrap">
+        <span class="jump-label">Reference Points:</span>
+        <div class="quick-jumps" id="quick-jumps"></div>
+      </div>
+    </div>
+
+    <!-- Readout Box -->
+    <div class="readout-box">
+      <div class="pitch-display">
+        <div class="pitch-lead" id="pitch-lead">—</div>
+        <div class="pitch-trail" id="pitch-trail">—</div>
+      </div>
+
+      <div class="category-display">
+        <div class="chip-row">
+          <span class="chip" id="category-chip">—</span>
+          <span class="chip" id="regime-chip">—</span>
+        </div>
+        <p class="category-note" id="category-note">—</p>
+        <p class="regime-note" id="regime-note">—</p>
+        <p class="modes-info" id="modes-info">—</p>
+        <p class="validity-note" id="validity-note" style="display: none;"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 2. DIGITAL MEDIUM ================= -->
+  <section class="panel panel-digital-medium" aria-labelledby="h-digital">
+    <div class="panel-header">
+      <h2 id="h-digital">2. Digital Medium (The Apparatus)</h2>
+    </div>
+    <p class="panel-description">
+      The digital apparatus is a second atmosphere with its own parameters. Sample rate dictates which modes resolve; bit depth sets the quantization noise floor.
+    </p>
+
+    <div class="grid-2col">
+      <div class="field-group">
+        <label for="sr-preset" class="field-label">Sample Rate (f<sub>s</sub>)</label>
+        <select id="sr-preset"></select>
+        <input type="number" id="sr-custom" class="custom-input" placeholder="Custom Hz" style="display: none;">
+      </div>
+
+      <div class="field-group">
+        <label for="bit-depth-select" class="field-label">Bit Depth</label>
+        <select id="bit-depth-select"></select>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <span class="metric-label">Nyquist Frequency</span>
+        <span class="metric-val" id="nyquist-readout">—</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Highest Mode (≤ Nyquist)</span>
+        <span class="metric-val" id="highest-mode-readout">—</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Delay Line State</span>
+        <span class="metric-val" id="delay-samples-readout">—</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">State Memory Footprint</span>
+        <span class="metric-val" id="state-mem-readout">—</span>
+      </div>
+      <div class="metric-card metric-span-2">
+        <span class="metric-label">WAV RIFF 32-bit (4 GiB) Limit</span>
+        <span class="metric-val" id="wav-cap-readout">—</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3. WAVEGUIDE & INTERPOLATOR ================= -->
+  <section class="panel panel-waveguide" aria-labelledby="h-waveguide">
+    <div class="panel-header">
+      <h2 id="h-waveguide">3. Waveguide Resonator &amp; Measured Interpolator</h2>
+    </div>
+    <p class="panel-description">
+      1D bidirectional delay line. The fractional delay interpolator is measured directly: its phase delay varies with frequency, causing the mode series to deviate from exact harmonics.
+    </p>
+
+    <div class="grid-2col">
+      <div class="field-group">
+        <label for="excitation-select" class="field-label">Excitation Source</label>
+        <select id="excitation-select"></select>
+        <p class="field-help" id="excitation-desc"></p>
+      </div>
+
+      <div class="field-group">
+        <label for="interpolator-select" class="field-label">Fractional Delay Interpolator</label>
+        <select id="interpolator-select"></select>
+        <p class="field-help" id="inharmonicity-rms">—</p>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table" aria-label="Mode inharmonicity breakdown">
+        <thead>
+          <tr>
+            <th>Mode (n)</th>
+            <th>Ideal Target f</th>
+            <th>Realised f</th>
+            <th>Delay (samples)</th>
+            <th>Inharmonicity (Δf/nf₁)</th>
+          </tr>
+        </thead>
+        <tbody id="modes-table-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= 4. ATMOSPHERE ================= -->
+  <section class="panel panel-atmosphere" aria-labelledby="h-atmosphere">
+    <div class="panel-header">
+      <h2 id="h-atmosphere">4. Physical Atmosphere</h2>
+    </div>
+    <p class="panel-description">
+      Three parameters: heat ratio γ, gravity g, sound speed c.
+    </p>
+
+    <div class="field-group">
+      <label for="atm-preset" class="field-label">Atmosphere Preset</label>
+      <select id="atm-preset"></select>
+      <p class="preset-note" id="atm-preset-note"></p>
+    </div>
+
+    <div class="grid-3col">
+      <div class="field-group">
+        <label for="atm-gamma" class="field-label">γ (Ratio of specific heats)</label>
+        <input type="number" id="atm-gamma" step="0.01" value="1.4">
+      </div>
+      <div class="field-group">
+        <label for="atm-g" class="field-label">g (Gravity, m s⁻²)</label>
+        <input type="number" id="atm-g" step="0.001" value="9.80665">
+      </div>
+      <div class="field-group">
+        <label for="atm-c" class="field-label">c (Sound speed, m s⁻¹)</label>
+        <input type="number" id="atm-c" step="0.1" value="343.0">
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <span class="metric-label">Density Scale Height (H)</span>
+        <span class="metric-val" id="atm-scale-height">—</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Acoustic Cutoff (f<sub>a</sub>)</span>
+        <span class="metric-val" id="atm-cutoff">—</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Critical Length L<sub>crit</sub> (Open)</span>
+        <span class="metric-val" id="atm-crit-open">—</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Critical Length L<sub>crit</sub> (Stopped)</span>
+        <span class="metric-val" id="atm-crit-stopped">—</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 5. FIVE LIMITS MATRIX ================= -->
+  <section class="panel panel-limits" aria-labelledby="h-limits">
+    <div class="panel-header">
+      <h2 id="h-limits">5. Five Limits Matrix</h2>
+    </div>
+    <p class="panel-description">
+      Independent failures across physical theory and discrete digital representation.
+    </p>
+
+    <div class="limits-matrix">
+      <div class="matrix-header">Limit / Medium</div>
+      <div class="matrix-header">Where it bites</div>
+      <div class="matrix-header">Current Status</div>
+
+      <div class="matrix-cell title-cell">1. Physical Atmosphere</div>
+      <div class="matrix-cell">Low frequency (Acoustic cutoff f<sub>a</sub> = 3.185 mHz)</div>
+      <div class="matrix-cell"><span class="chip" id="limit-atm-chip">—</span></div>
+
+      <div class="matrix-cell title-cell">2. Digital Audio (Nyquist)</div>
+      <div class="matrix-cell">High frequency (f<sub>Nyquist</sub> = f<sub>s</sub> / 2)</div>
+      <div class="matrix-cell"><span class="chip" id="limit-nyquist-chip">—</span></div>
+
+      <div class="matrix-cell title-cell">3. Delay Line State Memory</div>
+      <div class="matrix-cell">Both ends (Short: &lt; 2 samples; Long: exceeds JS heap)</div>
+      <div class="matrix-cell"><span class="chip" id="limit-delay-chip">—</span></div>
+
+      <div class="matrix-cell title-cell">4. WAV RIFF 32-bit Container</div>
+      <div class="matrix-cell">Long duration (File capped at 4 GiB)</div>
+      <div class="matrix-cell"><span class="chip" id="limit-wav-chip">—</span></div>
+    </div>
+  </section>
+
+  <!-- ================= 6. OFFLINE RENDER ================= -->
+  <section class="panel panel-render" aria-labelledby="h-render">
+    <div class="panel-header">
+      <h2 id="h-render">6. Offline Waveguide Render</h2>
+    </div>
+    <p class="panel-description">
+      Offline, non-realtime rendering of the waveguide running sample-by-sample. Partial renders are first-class. Costs are quoted before starting.
+    </p>
+
+    <div class="render-config-row">
+      <fieldset class="mode-toggle">
+        <legend class="field-label">Render Target</legend>
+        <label><input type="radio" name="render-mode" value="duration" checked> Duration (seconds)</label>
+        <label><input type="radio" name="render-mode" value="cycles"> Cycles (of fundamental)</label>
+      </fieldset>
+
+      <div id="render-duration-group" class="field-group">
+        <label for="render-duration-sec" class="field-label">Duration</label>
+        <input type="number" id="render-duration-sec" min="0.01" step="any" value="2.0"> seconds
+      </div>
+
+      <div id="render-cycle-group" class="field-group" style="display: none;">
+        <label for="render-cycle-count" class="field-label">Cycle Count</label>
+        <input type="number" id="render-cycle-count" min="0.0001" step="any" value="1.0"> cycles
+      </div>
+    </div>
+
+    <!-- Quotation Card -->
+    <div class="quote-card">
+      <div class="quote-row">
+        <span class="quote-label">Quoted Duration:</span>
+        <span class="quote-val" id="quote-duration">—</span>
+      </div>
+      <div class="quote-row">
+        <span class="quote-label">Quoted Samples:</span>
+        <span class="quote-val" id="quote-samples">—</span>
+      </div>
+      <div class="quote-row">
+        <span class="quote-label">Estimated Output Size:</span>
+        <span class="quote-val" id="quote-size">—</span>
+      </div>
+      <div class="quote-warning" id="quote-warning" style="display: none;"></div>
+    </div>
+
+    <div class="render-action-row">
+      <button type="button" id="btn-render" class="btn btn-primary">Start Offline Render</button>
+      <button type="button" id="btn-route" class="btn" style="display: none;">Render the way that fits</button>
+      <button type="button" id="btn-cancel-render" class="btn" disabled>Cancel</button>
+    </div>
+
+    <div class="progress-box" id="render-progress-box" style="display: none;">
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="render-progress-bar"></div>
+      </div>
+      <p class="progress-text" id="render-progress-text">Preparing...</p>
+    </div>
+
+    <div class="result-box" id="render-result-box" style="display: none;">
+      <div class="result-actions">
+        <button type="button" id="btn-download-wav" class="btn btn-download">Download WAV</button>
+      </div>
+      <div id="audio-preview-container" class="audio-preview-wrap" style="display: none;">
+        <label for="audio-preview" class="field-label">Audition Render (Audible range only):</label>
+        <audio id="audio-preview" controls></audio>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 7. SCORE EXPORT ================= -->
+  <section class="panel panel-score" aria-labelledby="h-score">
+    <div class="panel-header">
+      <h2 id="h-score">7. Composition Specification Score</h2>
+      <div class="score-actions">
+        <button type="button" id="btn-copy-score" class="btn btn-sm">Copy Score</button>
+        <button type="button" id="btn-download-score" class="btn btn-sm">Download .md</button>
+      </div>
+    </div>
+    <p class="panel-description">
+      At planetary lengths, the score is the primary form the composition takes.
+    </p>
+
+    <pre class="score-box" id="score-output"></pre>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>The Unbounded Organ — Sibling to <a href="../planetary-organs/">Mass: Planetary Organs</a>. <a href="explainer.html">Concepts &amp; Architecture</a> &bull; Evaluated under pure waveguide mechanics.</p>
+  </div>
+</footer>
+
+<script type="module" src="src/app.js"></script>
+</body>
+</html>
