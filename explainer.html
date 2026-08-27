@@ -250,7 +250,7 @@
         Most musical instruments define a working range and truncate everything outside it. <strong>The Unbounded Organ</strong> does the opposite: it fixes a single, elementary 1D acoustic waveguide specification and evaluates it continuously across 10 orders of magnitude in pipe length—from <strong>8.575 millimetres</strong> (the 20 kHz ceiling of hearing) to <strong>40,075 kilometres</strong> (the circumference of the Earth).
       </p>
       <p>
-        The central claim of the piece is <em>categorical drift</em>: the mathematical model never adapts, branches, or modifies its rules. Yet as length $L$ scales, the output shifts from a musical <strong>note</strong>, to a series of discrete <strong>echoes</strong>, to an ultra-slow planetary <strong>drift</strong>.
+        The central claim of the piece is <em>categorical drift</em>: the mathematical model never adapts, branches, or modifies its rules. Yet as length $L$ scales, the output shifts from a musical <strong>note</strong>, to a series of discrete <strong>echoes</strong>, to an ultra-slow <strong>drift</strong>.
       </p>
       
       <div class="callout note">
@@ -287,7 +287,7 @@
 
       <h3>1.2 Stratified Atmosphere &amp; Acoustic Cutoff Frequency</h3>
       <p>
-        In a real planetary atmosphere subject to surface gravity $g$, air density $\rho(z)$ is not constant—it falls exponentially with altitude according to the density scale height $H$:
+        In a stratified atmosphere subject to surface gravity $g$, air density $\rho(z)$ is not constant—it falls exponentially with altitude according to the density scale height $H$:
       </p>
       $$H = \frac{c^2}{\gamma g}$$
       <p>
@@ -410,7 +410,7 @@
       </p>
       <ul>
         <li><strong>Nyquist Limit ($f_s / 2$):</strong> Hard mathematical boundary; modes above $f_s / 2$ cannot exist in discrete buffers.</li>
-        <li><strong>Memory Footprint:</strong> Delay state size is $S = \left(\frac{2L}{c} f_s\right) \times 8\text{ bytes}$. At $48\text{ kHz}$, an Earth-radius pipe demands $7.1\text{ GB}$ of RAM. Lowering $f_s$ to $10\text{ Hz}$ reduces state size to $1.5\text{ MB}$, making planetary rendering tractable without altering the physical algorithm.</li>
+        <li><strong>Memory Footprint:</strong> Delay state size is $S = \left(\frac{2L}{c} f_s\right) \times 8\text{ bytes}$. At $48\text{ kHz}$, a 6,371 km pipe demands $7.1\text{ GB}$ of RAM. Lowering $f_s$ to $10\text{ Hz}$ reduces state size to $1.5\text{ MB}$, making very long pipes tractable without altering the physical algorithm.</li>
         <li><strong>WAV RIFF 32-bit Container Limit:</strong> Standard WAV headers store file lengths in 32-bit unsigned integers, capping files at $4\text{ GiB}$.</li>
       </ul>
     </section>
@@ -456,7 +456,7 @@
 
   <footer class="doc-footer">
     <p>
-      The Unbounded Organ — Architecture Explainer &bull; Sibling to <a href="../planetary-organs/" style="color: var(--accent);">Mass: Planetary Organs</a>.
+      The Unbounded Organ — Architecture Explainer
     </p>
   </footer>
 

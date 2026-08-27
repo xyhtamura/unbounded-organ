@@ -164,8 +164,8 @@ const JUMP_TARGETS = [
   { label: '1 km (0.17 Hz infrasound)', length: 1000, unit: 'km' },
   { label: '53.84 km (Earth L_crit)', length: 53840, unit: 'km' },
   { label: '100 km (Kármán line)', length: 100000, unit: 'km' },
-  { label: '6,371 km (Earth radius)', length: 6.371e6, unit: 'km' },
-  { label: '40,075 km (Circumference)', length: 4.0075e7, unit: 'km' },
+  { label: '6,371 km', length: 6.371e6, unit: 'km' },
+  { label: '40,075 km (maximum)', length: 4.0075e7, unit: 'km' },
 ];
 
 function populateQuickJumps() {
@@ -273,28 +273,28 @@ function updateUi() {
   // and the console breathes at the pipe's own period. See src/skin.js.
   applySkin({ lengthM, category: cat });
   if (cat === 'note') {
-    els.categoryNote.textContent = 'Pitch percept survives. Sparse harmonic modes.';
+    els.categoryNote.textContent = 'A stable pitch with sparse harmonic modes.';
   } else if (cat === 'echo') {
-    els.categoryNote.textContent = 'Millions of modes below Nyquist. Discrete round-trip reflections (echo).';
+    els.categoryNote.textContent = 'Dense modes separate into round-trip reflections.';
   } else {
-    els.categoryNote.textContent = `Period is ${fmtPeriod(pipeDesc.periodS)}. Ultra-slow continuous planetary drift.`;
+    els.categoryNote.textContent = `One cycle takes ${fmtPeriod(pipeDesc.periodS)}. The output changes too slowly to form a pitch.`;
   }
 
   // Regime
   els.regimeChip.textContent = pipeDesc.regime.toUpperCase();
   els.regimeChip.className = `chip chip-regime chip-${pipeDesc.regime}`;
   if (pipeDesc.regime === 'audible') {
-    els.regimeNote.textContent = 'Propagates in atmosphere and falls in human hearing band (20 Hz – 20 kHz).';
+    els.regimeNote.textContent = 'The fundamental propagates through the air and falls within 20 Hz–20 kHz.';
   } else if (pipeDesc.regime === 'infrasonic') {
-    els.regimeNote.textContent = `Propagates in atmosphere, but fundamental (${fmtFreq(pipeDesc.hz)}) is below 20 Hz.`;
+    els.regimeNote.textContent = `The fundamental propagates through the air but falls below 20 Hz.`;
   } else if (pipeDesc.regime === 'below-cutoff') {
-    els.regimeNote.textContent = `Fundamental is below vertical acoustic cutoff (${fmtFreq(atmDesc.cutoffHz)}). Atmospheric waves are evanescent.`;
+    els.regimeNote.textContent = `Below the ${fmtFreq(atmDesc.cutoffHz)} acoustic cutoff, the fundamental is evanescent.`;
   } else {
     els.regimeNote.textContent = 'Fundamental exceeds 20 kHz human hearing ceiling.';
   }
 
   // Modes information
-  els.modesInfo.textContent = `Modes below 20 Hz: ${fmtInt(medDesc.modesBelow20Hz)} | Modes within Nyquist: ${fmtInt(medDesc.highestMode)}`;
+  els.modesInfo.textContent = `${fmtInt(medDesc.modesBelow20Hz)} modes below 20 Hz · ${fmtInt(medDesc.highestMode)} modes below Nyquist`;
 
   // Physical validity caveats
   if (lengthM < 0.05) {
@@ -310,7 +310,7 @@ function updateUi() {
   }
 
   // Scale note
-  els.scaleNote.textContent = `${fmtLength(lengthM)} (${lengthM.toExponential(4)} m) | ${fmtNum(pipeDesc.scaleHeights, 3)} scale heights H`;
+  els.scaleNote.textContent = `${fmtLength(lengthM)} · ${lengthM.toExponential(4)} m · ${fmtNum(pipeDesc.scaleHeights, 3)} scale heights H`;
 
   // 2. Digital Medium Panel
   els.nyquistReadout.textContent = fmtFreq(medDesc.nyquistHz);
@@ -323,7 +323,7 @@ function updateUi() {
   // 3. Resonator & Interpolator
   const activeEx = EXCITATION_TYPES.find((e) => e.id === excitationType);
   els.excitationDesc.textContent = activeEx ? activeEx.description : '';
-  els.inharmonicityRms.textContent = `Measured RMS mode inharmonicity: ${interpDesc.percentRms.toFixed(4)}% (Max: ${interpDesc.percentMax.toFixed(4)}%)`;
+  els.inharmonicityRms.textContent = `RMS deviation ${interpDesc.percentRms.toFixed(4)}% · maximum ${interpDesc.percentMax.toFixed(4)}%`;
 
   els.modesTableBody.innerHTML = '';
   interpDesc.modes.forEach((m) => {
@@ -441,7 +441,7 @@ function updateRenderQuote() {
   // Below the cutoff, rendering is a decision to proceed past a limit the
   // instrument has just stated. Name the gesture; do not obstruct it.
   const forced = isForced(state.lengthM, state.atm, state.mode);
-  els.btnRender.textContent = forced ? 'Force through — render anyway' : 'Start Offline Render';
+  els.btnRender.textContent = forced ? 'Render past cutoff' : 'Render WAV';
   els.btnRender.classList.toggle('is-forced', forced);
 }
 
@@ -480,7 +480,7 @@ async function handleStartRender() {
   els.renderProgressBox.style.display = 'block';
   els.renderResultBox.style.display = 'none';
   els.progressBar.style.width = '0%';
-  els.progressText.textContent = 'Starting waveguide simulation...';
+  els.progressText.textContent = 'Starting waveguide simulation…';
 
   // Even a routed rate can fail to allocate on a machine with less headroom
   // than the one the ceiling was measured on. An allocation failure is not a
@@ -528,7 +528,7 @@ async function handleStartRender() {
       },
       (prog) => {
         els.progressBar.style.width = `${prog.percent.toFixed(1)}%`;
-        els.progressText.textContent = `Rendering: ${fmtInt(prog.renderedSamples)} / ${fmtInt(prog.totalSamples)} samples (${prog.percent.toFixed(1)}%) — Remaining: ${(prog.estimatedRemainingMs / 1000).toFixed(1)}s`;
+        els.progressText.textContent = `${fmtInt(prog.renderedSamples)} of ${fmtInt(prog.totalSamples)} samples · ${prog.percent.toFixed(1)}% · about ${(prog.estimatedRemainingMs / 1000).toFixed(1)} s remaining`;
       },
       state.abortController.signal
       );
@@ -743,9 +743,9 @@ function setupEventListeners() {
     const text = els.scorePre.textContent;
     try {
       await navigator.clipboard.writeText(text);
-      els.btnCopyScore.textContent = 'Score copied!';
+      els.btnCopyScore.textContent = 'Copied';
       setTimeout(() => {
-        els.btnCopyScore.textContent = 'Copy Score';
+        els.btnCopyScore.textContent = 'Copy score';
       }, 2000);
     } catch (e) {
       console.error(e);

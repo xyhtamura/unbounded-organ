@@ -4,7 +4,6 @@ An organ model with no range restriction, evaluated at any pipe length and
 rendered at whatever rate it produces.
 
 - Spec: [`../unbuilt/unbounded-organ_spec_20260822.md`](../unbuilt/unbounded-organ_spec_20260822.md) (built)
-- **Sibling:** [`../planetary-organs/`](../planetary-organs/) — the opposite sound policy. Planetary Organs refuses to sound below 20 Hz (the refusal is the content); this piece renders every length at its true rate into offline WAV files.
 - Physics: [`../physics/projects/planetary-organs/`](../physics/projects/planetary-organs/)
 - Claims: `PORG-*` in [`../physics/CLAIMS.md`](../physics/CLAIMS.md)
 - Shared contract: `src/physics.js` vendored from `planetary-organs/src/physics.js`, tracked in [`../DEPENDENCIES.md`](../DEPENDENCIES.md).
@@ -62,7 +61,7 @@ node test/render.test.js
 ## Decisions that are the piece rather than implementation
 
 - **Waveguide, not additive (§4.3):** The waveguide produces the mode structure and categorical drift mechanically rather than asserting or truncating it.
-- **Everything sounds at its own rate; no transposition (§4.2):** Renders at true rate into offline WAV files. Omitting transposition is deliberate to avoid competing with Planetary Organs.
+- **Everything sounds at its own rate; no transposition (§4.2):** Renders at true rate into offline WAV files.
 - **Digital medium as a second atmosphere (§4.4):** Sample rate and bit depth sit in their own panel with live feedback on delay memory state and maximum represented mode.
 - **Fractional delay interpolator measured and reported (§4.7):** Frequency-dependent phase delay and mode inharmonicity are computed directly and reported in the interface as a representational analogue to the physical end correction ($\delta / L$).
 - **Five limits grid (§5):** Exposes the independent physical failures (cutoff, vacuum) vs digital representational failures (Nyquist, state size, 4 GiB WAV boundary).
@@ -280,3 +279,26 @@ reduced-motion set** and judge whether 2.6–26 s reads as breath or as drift.
 **Undone for release.** No favicon. No `README.md` for people arriving at the
 repository. Not published — this repo has no remote, and Pages would serve it at
 `/unbounded-organ/`, which is already how it resolves locally.
+
+### 2026-08-27 — Codex — interface and copy redesign
+
+Replaced the dark organ-console skin with a compact editorial measurement
+console: pale paper, black type, square controls, thin rules, and one rust-red
+action colour. The live result remains the only dark surface and keeps the
+NOTE/ECHO/DRIFT category colour along its edge. The desktop layout now pairs
+related panels in two columns, while the pipe and live readout remain full
+width. Mobile collapses to one column with no page-level horizontal overflow.
+
+Rewrote labels, descriptions, state messages, render copy, and score copy in a
+shorter operational register. Removed the public links and positioning text for
+Planetary Organs from the instrument and explainer; the stamped physics source
+and its provenance remain documented because they are still implementation
+dependencies.
+
+**Verified.** All 101 tests in `npm test` pass. `test/route.test.js` passes 15/15.
+Browser checks at 1265 px and 390 px found no console errors or horizontal page
+overflow. At 6,371 km the live state reads DRIFT, the render control changes to
+“Render past cutoff,” and the route remains available at 3.61 kHz.
+
+**Undone.** The explainer retains its existing visual design; only its public
+Planetary Organs references were removed. The release items above remain open.

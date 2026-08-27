@@ -26,7 +26,7 @@ export const SAMPLE_RATE_PRESETS = [
   { value: 100, label: '100 Hz (Infrasound band to 50 Hz)' },
   { value: 10, label: '10 Hz (Sub-audio band to 5 Hz)' },
   { value: 1, label: '1 Hz (Ultra-low frequency to 0.5 Hz)' },
-  { value: 0.1, label: '0.1 Hz (Planetary drift to 0.05 Hz)' },
+  { value: 0.1, label: '0.1 Hz (Ultra-low band to 0.05 Hz)' },
 ];
 
 /** Bit depth choices. */

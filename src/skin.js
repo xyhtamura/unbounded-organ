@@ -12,7 +12,7 @@
  *
  *   --breath  the pipe's own period, clamped into a range an eye can see.
  *             The console breathes at it. A short pipe breathes fast; a
- *             planetary one barely moves.
+ *             very long one barely moves.
  *
  *   --kind    the hue of the current category, so the readout window is
  *             tinted by what it is rather than by how bad it is. NOTE, ECHO

@@ -62,7 +62,7 @@ export function generateScore({
 
 | Metric | Value |
 |---|---|
-| **Categorical Kind** | **${medDesc.category.toUpperCase()}** (${medDesc.category === 'note' ? 'Sparse mode spectrum; distinct pitch percept' : medDesc.category === 'echo' ? 'Dense harmonic modes; discrete round-trip reflections' : 'Ultra-low frequency; continuous planetary drift'}) |
+| **Categorical Kind** | **${medDesc.category.toUpperCase()}** (${medDesc.category === 'note' ? 'Sparse mode spectrum; distinct pitch percept' : medDesc.category === 'echo' ? 'Dense harmonic modes; discrete round-trip reflections' : 'Ultra-low frequency; continuous slow drift'}) |
 | **Pipe Length** | ${fmtLength(pipe.lengthM)} (${pipe.lengthM.toExponential(4)} m) |
 | **Pipe Boundary** | ${pipe.mode} (${pipe.mode === 'open' ? 'pressure-release at both ends; all integer harmonics' : 'rigid closed end, open mouth; odd harmonics only'}) |
 | **Fundamental Frequency (f₁)** | ${fmtFreq(pipeDesc.hz)} |
