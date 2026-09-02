@@ -9,3 +9,6 @@ node_modules/
 *.rf64
 *.caf
 renders/
+
+# Internal working notes; not published.
+NOTES.md
