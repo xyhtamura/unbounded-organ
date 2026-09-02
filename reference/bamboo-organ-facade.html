@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bamboo organ façade study</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --timber: oklch(0.310 0.075 55);
+      --timber-lift: oklch(0.405 0.085 62);
+      --metal-dim: oklch(0.475 0.040 218);
+      --metal-lift: oklch(0.790 0.040 205);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 2rem;
+      background: oklch(0.125 0.030 42);
+      color: oklch(0.82 0.05 79);
+      font: 500 0.75rem/1.5 ui-monospace, monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    figure {
+      width: min(88vw, 22rem);
+      margin: 0;
+    }
+
+    .bamboo-case {
+      position: relative;
+      min-height: 16.5rem;
+      padding: 2.7rem 1.25rem 1.3rem;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, transparent 49.5%, oklch(0.56 0.11 68 / 0.34) 50%, transparent 50.5%),
+        linear-gradient(165deg, var(--timber-lift), var(--timber) 44%, oklch(0.205 0.055 47));
+      border: 1px solid oklch(0.52 0.09 62 / 0.85);
+      clip-path: polygon(4% 22%, 25% 22%, 31% 12%, 42% 12%, 50% 0, 58% 12%, 69% 12%, 75% 22%, 96% 22%, 100% 100%, 0 100%);
+      box-shadow: inset 0 0 0 5px oklch(0.18 0.05 47 / 0.58);
+    }
+
+    .bamboo-case::before {
+      content: "";
+      position: absolute;
+      inset: 1.15rem 0.9rem 1rem;
+      border: 1px solid oklch(0.70 0.105 72 / 0.42);
+      clip-path: inherit;
+      pointer-events: none;
+    }
+
+    .bamboo-rank {
+      position: relative;
+      z-index: 1;
+      height: 11.4rem;
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      gap: clamp(0.2rem, 0.7vw, 0.42rem);
+      padding: 0 0.35rem 0.8rem;
+      border-bottom: 0.7rem solid oklch(0.235 0.060 47);
+    }
+
+    .bamboo-rank span {
+      position: relative;
+      width: clamp(0.55rem, 1.2vw, 0.82rem);
+      height: var(--pipe-h);
+      border: 1px solid oklch(0.55 0.10 67 / 0.8);
+      border-radius: 999px 999px 2px 2px;
+      background:
+        repeating-linear-gradient(to bottom, transparent 0 2.05rem, oklch(0.49 0.095 60 / 0.88) 2.05rem 2.17rem, oklch(0.86 0.10 83 / 0.55) 2.17rem 2.25rem),
+        linear-gradient(90deg, oklch(0.58 0.11 64), oklch(0.86 0.12 84) 26%, oklch(0.74 0.12 75) 68%, oklch(0.48 0.09 60));
+      box-shadow: 1px 2px 4px oklch(0.12 0.04 45 / 0.65);
+    }
+
+    .bamboo-rank span::after {
+      content: "";
+      position: absolute;
+      top: 0.08rem;
+      left: 13%;
+      width: 74%;
+      height: 0.23rem;
+      border-radius: 50%;
+      background: oklch(0.23 0.055 53);
+      box-shadow: 0 1px 0 oklch(0.92 0.10 88 / 0.42);
+    }
+
+    .bamboo-rank span:nth-child(1), .bamboo-rank span:nth-child(13) { --pipe-h: 38%; }
+    .bamboo-rank span:nth-child(2), .bamboo-rank span:nth-child(12) { --pipe-h: 48%; }
+    .bamboo-rank span:nth-child(3), .bamboo-rank span:nth-child(11) { --pipe-h: 59%; }
+    .bamboo-rank span:nth-child(4), .bamboo-rank span:nth-child(10) { --pipe-h: 69%; }
+    .bamboo-rank span:nth-child(5), .bamboo-rank span:nth-child(9) { --pipe-h: 80%; }
+    .bamboo-rank span:nth-child(6), .bamboo-rank span:nth-child(8) { --pipe-h: 91%; }
+    .bamboo-rank span:nth-child(7) { --pipe-h: 100%; }
+
+    .reed-bank {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      gap: 0.55rem;
+      padding-top: 0.65rem;
+    }
+
+    .reed-bank i {
+      width: 2.25rem;
+      height: 0.28rem;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--metal-dim), var(--metal-lift) 55%, var(--metal-dim));
+      border-right: 0.35rem solid oklch(0.36 0.04 215);
+      transform: rotate(var(--reed-angle, 0deg));
+    }
+
+    .reed-bank i:nth-child(1), .reed-bank i:nth-child(5) { --reed-angle: 9deg; }
+    .reed-bank i:nth-child(2), .reed-bank i:nth-child(4) { --reed-angle: 4deg; }
+
+    figcaption { margin-top: 0.75rem; text-align: center; }
+    .note { margin: 1rem auto 0; max-width: 44ch; text-align: center; text-transform: none; }
+    a { color: oklch(0.78 0.13 190); }
+  </style>
+</head>
+<body>
+  <main>
+    <figure>
+      <div class="bamboo-case" aria-hidden="true">
+        <div class="bamboo-rank">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="reed-bank"><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <figcaption>Bamboo organ façade study</figcaption>
+    </figure>
+    <p class="note">
+      A CSS-only structural study of the tiered bamboo façade and metal reed bank of the
+      <a href="https://bamboo-organ.com/">Bamboo Organ of Las Piñas</a>. It uses no copied image or ornament.
+    </p>
+  </main>
+</body>
+</html>

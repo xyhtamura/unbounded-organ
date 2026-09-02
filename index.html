@@ -7,23 +7,27 @@
   <meta name="description" content="An organ model with no range restriction, evaluated at any pipe length and rendered at whatever rate it produces.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Averia+Sans+Libre:wght@400;700&family=Averia+Serif+Libre:ital,wght@0,400;0,700;1,400&family=Averia+Gruesa+Libre&family=Syne+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260827-2">
+  <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,600;1,400&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header class="masthead">
   <div class="masthead-inner">
-    <p class="kicker">Digital waveguide instrument</p>
-    <h1>The Unbounded Organ</h1>
-    <p class="standfirst">
-      Set one pipe anywhere from 8.575&nbsp;mm to 40,075&nbsp;km. The same model produces
-      a note, an echo, or a drift as its length changes. Past the air&rsquo;s acoustic
-      cutoff, the waveguide can still render the result at its true rate.
-    </p>
-    <nav class="masthead-links">
-      <a href="explainer.html" class="doc-link">Read the model <span aria-hidden="true">&#8599;</span></a>
-    </nav>
+    <div class="masthead-copy">
+      <p class="kicker">Digital waveguide instrument</p>
+      <h1>The Unbounded Organ</h1>
+      <p class="standfirst">
+        One 1D physical waveguide evaluated across pipe lengths from 8.575&nbsp;mm to 40,075&nbsp;km.
+        The model does not change; as length scales, its output drifts from a note to an echo to a continuous drift.
+      </p>
+      <nav class="masthead-links">
+        <a href="explainer.html" class="doc-link">Read the model &rarr;</a>
+      </nav>
+    </div>
+
+    <!-- Bamboo-organ façade study removed from the live composition.
+         Preserved at reference/bamboo-organ-facade.html. -->
   </div>
 </header>
 
@@ -34,6 +38,9 @@
     <div class="panel-header">
       <h2 id="h-pipe">The pipe</h2>
     </div>
+    <p class="panel-description">
+      Set length across ten orders of magnitude. The readout reports fundamental frequency, mode count, and acoustic regime.
+    </p>
 
     <div class="length-controls">
       <div class="control-row">
@@ -90,10 +97,10 @@
   <!-- ================= 2. DIGITAL MEDIUM ================= -->
   <section class="panel panel-digital-medium" aria-labelledby="h-digital">
     <div class="panel-header">
-      <h2 id="h-digital">Digital medium</h2>
+      <h2 id="h-digital">The digital medium</h2>
     </div>
     <p class="panel-description">
-      Sample rate sets the represented frequency band. Bit depth sets the output resolution.
+      Sample rate sets the represented frequency band. Bit depth sets output resolution.
     </p>
 
     <div class="grid-2col">
@@ -139,7 +146,7 @@
       <h2 id="h-waveguide">The resonator</h2>
     </div>
     <p class="panel-description">
-      A bidirectional delay line produces the mode series. The table measures the interpolator&rsquo;s deviation from exact harmonics.
+      A bidirectional delay line produces the harmonic series mechanically. The table reports fractional-delay interpolator phase dispersion.
     </p>
 
     <div class="grid-2col">
@@ -178,7 +185,7 @@
       <h2 id="h-atmosphere">The air</h2>
     </div>
     <p class="panel-description">
-      Set the three values used to derive scale height, cutoff frequency, and critical pipe length.
+      Set the three parameters used to derive scale height, acoustic cutoff frequency, and critical pipe length.
     </p>
 
     <div class="field-group">
@@ -228,7 +235,7 @@
       <h2 id="h-limits">Limits</h2>
     </div>
     <p class="panel-description">
-      Each limit belongs either to the air or to the digital representation.
+      Physical failure modes of the atmospheric column alongside representational limits of the digital medium.
     </p>
 
     <div class="limits-matrix">
@@ -260,7 +267,7 @@
       <h2 id="h-render">Render</h2>
     </div>
     <p class="panel-description">
-      Run the waveguide sample by sample and save the result as a WAV file. The estimate updates before rendering starts.
+      Evaluate the waveguide sample by sample into an uncompressed WAV file at its true rate.
     </p>
 
     <div class="render-config-row">
@@ -332,7 +339,7 @@
       </div>
     </div>
     <p class="panel-description">
-      Export the current pipe, medium, and render settings as a Markdown score.
+      Export the current specification, atmosphere, and medium settings as a plain Markdown score.
     </p>
 
     <pre class="score-box" id="score-output"></pre>
@@ -343,13 +350,13 @@
 <footer class="site-footer">
   <div class="container">
     <p>
-      The delay line has length <code>2L/c</code>. Its reflection signs produce the mode
-      series. The air model reports the acoustic cutoff but does not alter the renderer.
+      The delay line has length <code>2L/c</code>. Reflection signs at the boundaries produce the harmonic
+      series mechanically. The atmosphere model reports the acoustic cutoff but does not alter the audio path.
       <a href="explainer.html">Read the model.</a>
     </p>
   </div>
 </footer>
 
-<script type="module" src="src/app.js?v=20260827-2"></script>
+<script type="module" src="src/app.js"></script>
 </body>
 </html>

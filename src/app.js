@@ -269,28 +269,26 @@ function updateUi() {
   els.categoryChip.textContent = cat.toUpperCase();
   els.categoryChip.className = kindClassFor(cat);
 
-  // The surface drifts with the pipe: chroma thins as it outgrows the air,
-  // and the console breathes at the pipe's own period. See src/skin.js.
   applySkin({ lengthM, category: cat });
   if (cat === 'note') {
-    els.categoryNote.textContent = 'A stable pitch with sparse harmonic modes.';
+    els.categoryNote.textContent = 'Sparse harmonic modes in the audible band. Distinct pitch percept.';
   } else if (cat === 'echo') {
-    els.categoryNote.textContent = 'Dense modes separate into round-trip reflections.';
+    els.categoryNote.textContent = 'Dense harmonic modes. Round-trip reflections separate into a diffuse echo.';
   } else {
-    els.categoryNote.textContent = `One cycle takes ${fmtPeriod(pipeDesc.periodS)}. The output changes too slowly to form a pitch.`;
+    els.categoryNote.textContent = `Single cycle spans ${fmtPeriod(pipeDesc.periodS)}. Mode density is continuous; output resolves as ultra-slow drift.`;
   }
 
   // Regime
   els.regimeChip.textContent = pipeDesc.regime.toUpperCase();
   els.regimeChip.className = `chip chip-regime chip-${pipeDesc.regime}`;
   if (pipeDesc.regime === 'audible') {
-    els.regimeNote.textContent = 'The fundamental propagates through the air and falls within 20 Hz–20 kHz.';
+    els.regimeNote.textContent = 'Fundamental propagates in atmosphere and falls within 20 Hz–20 kHz.';
   } else if (pipeDesc.regime === 'infrasonic') {
-    els.regimeNote.textContent = `The fundamental propagates through the air but falls below 20 Hz.`;
+    els.regimeNote.textContent = 'Fundamental propagates in atmosphere below 20 Hz.';
   } else if (pipeDesc.regime === 'below-cutoff') {
     els.regimeNote.textContent = `Below the ${fmtFreq(atmDesc.cutoffHz)} acoustic cutoff, the fundamental is evanescent.`;
   } else {
-    els.regimeNote.textContent = 'Fundamental exceeds 20 kHz human hearing ceiling.';
+    els.regimeNote.textContent = 'Fundamental exceeds 20 kHz ceiling of human hearing.';
   }
 
   // Modes information
@@ -298,12 +296,12 @@ function updateUi() {
 
   // Physical validity caveats
   if (lengthM < 0.05) {
-    const errPct = (0.001 / lengthM) * 100; // rough 1mm bore comparison
-    els.validityNote.textContent = `Physical caveat: Short pipe length (${fmtLength(lengthM)}). End-correction error (δ/L) is significant (~${errPct.toFixed(1)}% for 1 mm bore). Ideal column arithmetic reported.`;
+    const errPct = (0.001 / lengthM) * 100;
+    els.validityNote.textContent = `Physical caveat: Short pipe length (${fmtLength(lengthM)}). End-correction error (δ/L) is ~${errPct.toFixed(1)}% for a 1 mm bore. Ideal column arithmetic reported.`;
     els.validityNote.style.display = 'block';
   } else if (lengthM > 100000) {
     const atmFraction = (100000 / lengthM) * 100;
-    els.validityNote.textContent = `Physical caveat: Column extends into space. Only ${atmFraction.toFixed(2)}% of length is within the continuum atmosphere (Kármán line ~100 km).`;
+    els.validityNote.textContent = `Physical caveat: Column extends into space. Only ${atmFraction.toFixed(2)}% of length sits within the continuum atmosphere (Kármán line ~100 km).`;
     els.validityNote.style.display = 'block';
   } else {
     els.validityNote.style.display = 'none';
@@ -324,7 +322,6 @@ function updateUi() {
   const activeEx = EXCITATION_TYPES.find((e) => e.id === excitationType);
   els.excitationDesc.textContent = activeEx ? activeEx.description : '';
   els.inharmonicityRms.textContent = `RMS deviation ${interpDesc.percentRms.toFixed(4)}% · maximum ${interpDesc.percentMax.toFixed(4)}%`;
-
   els.modesTableBody.innerHTML = '';
   interpDesc.modes.forEach((m) => {
     const tr = document.createElement('tr');
@@ -441,7 +438,7 @@ function updateRenderQuote() {
   // Below the cutoff, rendering is a decision to proceed past a limit the
   // instrument has just stated. Name the gesture; do not obstruct it.
   const forced = isForced(state.lengthM, state.atm, state.mode);
-  els.btnRender.textContent = forced ? 'Render past cutoff' : 'Render WAV';
+  els.btnRender.textContent = forced ? 'Force through — render anyway' : 'Render WAV';
   els.btnRender.classList.toggle('is-forced', forced);
 }
 
