@@ -8,6 +8,7 @@ import {
   describeAtmosphere,
   criticalLength,
   cutoffHz,
+  HEARING_FLOOR_HZ,
   FOOT_M,
 } from './physics.js';
 import { PRESETS, presetById, toAtmosphere } from './atmospheres.js';
@@ -281,15 +282,7 @@ function updateUi() {
   // Regime
   els.regimeChip.textContent = pipeDesc.regime.toUpperCase();
   els.regimeChip.className = `chip chip-regime chip-${pipeDesc.regime}`;
-  if (pipeDesc.regime === 'audible') {
-    els.regimeNote.textContent = 'Fundamental propagates in atmosphere and falls within 20 Hz–20 kHz.';
-  } else if (pipeDesc.regime === 'infrasonic') {
-    els.regimeNote.textContent = 'Fundamental propagates in atmosphere below 20 Hz.';
-  } else if (pipeDesc.regime === 'below-cutoff') {
-    els.regimeNote.textContent = `Below the ${fmtFreq(atmDesc.cutoffHz)} acoustic cutoff, the fundamental is evanescent.`;
-  } else {
-    els.regimeNote.textContent = 'Fundamental exceeds 20 kHz ceiling of human hearing.';
-  }
+  els.regimeNote.textContent = regimeReport(pipeDesc, atmDesc);
 
   // Modes information
   els.modesInfo.textContent = `${fmtInt(medDesc.modesBelow20Hz)} modes below 20 Hz · ${fmtInt(medDesc.highestMode)} modes below Nyquist`;
@@ -358,7 +351,14 @@ function updateLimitsGrid(pipeDesc, medDesc, atmDesc) {
   // 1. Atmosphere limit (f1 < fa)
   const isBelowCutoff = pipeDesc.hz <= atmDesc.cutoffHz;
   els.limitAtm.className = `chip ${isBelowCutoff ? 'chip-limit-active' : 'chip-limit-idle'}`;
-  els.limitAtm.textContent = isBelowCutoff ? 'ACTIVE (Evanescent wave)' : 'Clear (Propagating)';
+  if (!isBelowCutoff) {
+    els.limitAtm.textContent = 'Clear (Propagating)';
+  } else if (pipeDesc.lowestPropagating) {
+    els.limitAtm.textContent =
+      `ACTIVE (Evanescent — mode n = ${pipeDesc.lowestPropagating.n} carries)`;
+  } else {
+    els.limitAtm.textContent = 'ACTIVE (Evanescent wave)';
+  }
 
   // 2. Nyquist limit
   const isNearNyquist = pipeDesc.hz > medDesc.nyquistHz * 0.5;
@@ -440,6 +440,52 @@ function updateRenderQuote() {
   const forced = isForced(state.lengthM, state.atm, state.mode);
   els.btnRender.textContent = forced ? 'Force through — render anyway' : 'Render WAV';
   els.btnRender.classList.toggle('is-forced', forced);
+}
+
+/**
+ * A frequency ratio as octaves, for saying how far a threshold was missed.
+ */
+function fmtOctaves(ratio) {
+  const oct = Math.log2(ratio);
+  return `${fmtNum(oct, oct >= 10 ? 0 : 1)} octaves`;
+}
+
+/**
+ * What the fundamental did against the two thresholds, and — when the
+ * atmosphere forbids it — which mode carries instead.
+ *
+ * Folded in from Planetary Organs on 2026-09-03. That piece refuses to sound
+ * below 20 Hz and names the threshold each rank failed; this one renders every
+ * length, so the refusal cannot be the content and the report has to be. The
+ * regime labels the FUNDAMENTAL: a pipe whose fundamental is evanescent may
+ * still have propagating upper modes, and `lowestPropagating` is which.
+ * Shared-physics contract: DEPENDENCIES.md.
+ */
+function regimeReport(pipe, atm) {
+  if (pipe.regime === 'audible') {
+    return `Propagates and is heard. ${fmtFreq(pipe.hz)} clears the `
+      + `${fmtFreq(atm.cutoffHz)} cutoff and falls inside 20 Hz–20 kHz.`;
+  }
+
+  if (pipe.regime === 'ultrasonic') {
+    return `Failed the 20 kHz hearing ceiling by ${fmtOctaves(pipe.hz / 20000)}. `
+      + 'It propagates; hearing is what stops.';
+  }
+
+  if (pipe.regime === 'infrasonic') {
+    return `Failed the ${HEARING_FLOOR_HZ} Hz hearing floor by `
+      + `${fmtOctaves(HEARING_FLOOR_HZ / pipe.hz)}. It still propagates: `
+      + `${fmtFreq(pipe.hz)} is above the ${fmtFreq(atm.cutoffHz)} cutoff.`;
+  }
+
+  let report = `Failed the acoustic cutoff. ${fmtFreq(pipe.hz)} is below `
+    + `${fmtFreq(atm.cutoffHz)}, so the fundamental is evanescent rather than `
+    + 'radiating.';
+  if (pipe.lowestPropagating) {
+    report += ` The pipe's mode n = ${pipe.lowestPropagating.n} clears it, at `
+      + `${fmtFreq(pipe.lowestPropagating.hz)}.`;
+  }
+  return report;
 }
 
 function fmtRate(hz) {

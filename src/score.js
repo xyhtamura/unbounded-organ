@@ -14,6 +14,34 @@ import { analyzeModeDeviations } from './interpolator.js';
 import { fmtFreq, fmtPeriod, fmtBytes, fmtLength, fmtInt } from './format.js';
 
 /**
+ * What the fundamental did against the two thresholds, for the score.
+ *
+ * The same report the console shows, kept here because the score is the
+ * durable artifact and a regime name alone does not say which threshold was
+ * missed or what still carries. Folded in from Planetary Organs on 2026-09-03;
+ * shared-physics contract in DEPENDENCIES.md.
+ */
+function scoreRegimeReport(pipeDesc, atmDesc) {
+  if (pipeDesc.regime === 'audible') {
+    return `Clears the ${fmtFreq(atmDesc.cutoffHz)} cutoff; inside 20 Hz–20 kHz.`;
+  }
+  if (pipeDesc.regime === 'ultrasonic') {
+    return 'Failed the 20 kHz hearing ceiling. Propagates; hearing is what stops.';
+  }
+  if (pipeDesc.regime === 'infrasonic') {
+    return `Failed the 20 Hz hearing floor. Propagates: ${fmtFreq(pipeDesc.hz)} `
+      + `is above the ${fmtFreq(atmDesc.cutoffHz)} cutoff.`;
+  }
+  const carried = pipeDesc.lowestPropagating
+    ? ` Mode n = ${pipeDesc.lowestPropagating.n} clears it, at `
+      + `${fmtFreq(pipeDesc.lowestPropagating.hz)}.`
+    : '';
+  return `Failed the acoustic cutoff. ${fmtFreq(pipeDesc.hz)} is below `
+    + `${fmtFreq(atmDesc.cutoffHz)}; the fundamental is evanescent rather than `
+    + `radiating.${carried}`;
+}
+
+/**
  * Generate a Markdown score document for a specified configuration or rank collection.
  */
 export function generateScore({
@@ -68,6 +96,7 @@ export function generateScore({
 | **Fundamental Frequency (f₁)** | ${fmtFreq(pipeDesc.hz)} |
 | **Fundamental Period (T)** | ${fmtPeriod(pipeDesc.periodS)} |
 | **Acoustic Regime** | ${pipeDesc.regime} |
+| **Threshold report** | ${scoreRegimeReport(pipeDesc, atmDesc)} |
 | **Modes below 20 Hz** | ${fmtInt(medDesc.modesBelow20Hz)} |
 | **Modes below Nyquist** | ${fmtInt(medDesc.highestMode)} |
 
