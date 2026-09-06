@@ -33,6 +33,22 @@ signs produce the mode series rather than being told it. An additive build
 would have to truncate the series at some partial count, and that truncation
 would be an authored choice standing in for the physics.
 
+## The rank
+
+A second view puts several pipes in the air at once. Its roll runs pipe length
+up the vertical axis on a logarithmic scale rather than pitch, because a pitch
+axis would quietly restore the range restriction the instrument is named for:
+past the hearing floor there is no note to place on one. Length stays meaningful
+across the whole range, so a common transposition is a rigid shift of the whole
+rank and the roll says how many voices it throws out of hearing.
+
+Polyphony is paid for in range. Every voice needs its own delay line, and the
+1 GiB allocation ceiling is a ceiling on their sum, so the exchange rate is
+exact: at 48 kHz one pipe reaches 479.5 km, and eight pipes of equal length
+reach 59.9 km each. Mixed registers cost far less than that suggests — a metre
+of pipe beside a kilometre of pipe is nearly free — and the roll shades the
+region the pool can no longer afford.
+
 ## What the model does not do
 
 The atmosphere panel is reported but never read by the audio path. A waveguide
@@ -54,8 +70,9 @@ Then open `http://localhost:8000/`.
 
 ## Tests
 
-Six suites, 116 tests. No test framework and no dependencies; the suites
-are plain ES modules. Verified on Node 20.10.
+Ten suites: 159 counted checks across seven of them, and three more that
+assert directly. No test framework and no dependencies; the suites are plain ES
+modules. Verified on Node 20.10.
 
 ```bash
 npm test
@@ -77,6 +94,11 @@ npm test
 | `src/format.js` | Formatting for frequencies, periods, lengths, and byte sizes |
 | `src/score.js` | Markdown composition score generator |
 | `src/skin.js` | Pushes `--drift`, `--breath`, and `--kind` onto the root element. Touches neither physics nor audio; deleting it leaves a plain instrument |
+| `src/scale-view.js` | Size comparison against dimensioned reference objects on a shared vertical scale |
+| `src/polyphony.js` | The delay-line pool as a budget on the sum rather than on each voice, the set-level regime report, common transposition, and the render route for a rank |
+| `src/roll-view.js` | The rank roll. Vertical axis is pipe length on a log scale, not pitch |
+| `src/rank-panel.js` | Rank view state, presets, and its own render |
+| `src/tube-view.js` | Shaded tube with the fundamental's pressure envelope, drawn in the audible regime only |
 | `src/app.js` | UI state, event wiring, render coordination |
 | `test/*.test.js` | Physics, waveguide mode structure, interpolators, WAV encoder, offline render, and render routing |
 

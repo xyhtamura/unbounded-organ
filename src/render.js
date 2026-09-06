@@ -10,6 +10,7 @@
 import { createWaveguide } from './waveguide.js';
 import { encodeWAV } from './wav.js';
 import { pipeFundamentalHz } from './physics.js';
+import { withVoiceDefaults, poolUsage, describeRank, rankSpanS } from './polyphony.js';
 
 /**
  * Render a waveguide offline into a WAV buffer.
@@ -130,6 +131,137 @@ export async function renderOffline(options, onProgress, signal) {
     totalCycles,
     f1,
     periodS,
+    peakAmplitude: peak,
+    sampleRate,
+    bitDepth,
+  };
+}
+
+/**
+ * Render a rank of pipes offline into one WAV buffer.
+ *
+ * Every voice is a waveguide of its own, built before the first sample so a
+ * rank that overruns the allocation ceiling fails here rather than part way
+ * through. The pipes are summed, which is the only mixing there is: they share
+ * one air. Same chunking, progress and cancellation contract as
+ * `renderOffline`.
+ */
+export async function renderRank(options, onProgress, signal) {
+  const {
+    voices: rawVoices,
+    atm,
+    sampleRate = 48000,
+    bitDepth = 16,
+    excitationType = 'impulse',
+    excitationDurationS = 0.005,
+    excitationGain = 0.8,
+    interpolatorType = 'linear',
+    lossFactor = 0.9995,
+    durationSec,
+    normalize = true,
+  } = options;
+
+  const voices = rawVoices.map(withVoiceDefaults);
+  if (voices.length === 0) throw new Error('A rank needs at least one voice.');
+
+  const pool = poolUsage(voices, atm, sampleRate);
+  if (!pool.fits) {
+    throw new Error(
+      `The rank's ${voices.length} delay lines need `
+      + `${Math.round(pool.totalDelaySamples).toLocaleString()} samples between them, over the `
+      + `${pool.poolSamples.toLocaleString()} sample ceiling. Lower the sample rate or shorten the pipes.`
+    );
+  }
+
+  const totalDurationS = durationSec ?? rankSpanS(voices);
+  const totalSamples = Math.ceil(totalDurationS * sampleRate);
+  if (totalSamples <= 0) throw new Error('Total render samples must be greater than zero.');
+
+  // Built up front, so the allocation the quote named is the allocation made.
+  const built = voices.map(v => ({
+    voice: v,
+    startSample: Math.max(0, Math.round(v.startS * sampleRate)),
+    waveguide: createWaveguide({
+      lengthM: v.lengthM,
+      atm,
+      mode: v.mode,
+      sampleRate,
+      excitationType,
+      excitationDurationS,
+      excitationGain,
+      interpolatorType,
+      lossFactor,
+      sustainSamples: Number.isFinite(v.durationS)
+        ? Math.max(1, Math.round(v.durationS * sampleRate))
+        : Infinity,
+    }),
+  }));
+
+  const outputSamples = new Float64Array(totalSamples);
+  const chunkSize = 131072;
+  let renderedSamples = 0;
+  const startTime = performance.now();
+
+  while (renderedSamples < totalSamples) {
+    if (signal && signal.aborted) {
+      throw new DOMException('Render aborted by user', 'AbortError');
+    }
+
+    const chunkStart = renderedSamples;
+    const currentCount = Math.min(chunkSize, totalSamples - renderedSamples);
+    const chunkEnd = chunkStart + currentCount;
+
+    for (const v of built) {
+      // A voice contributes nothing before its onset, and is not stepped then
+      // either, so its ring-down starts when the pallet opens and not before.
+      const from = Math.max(chunkStart, v.startSample);
+      if (from >= chunkEnd) continue;
+      v.waveguide.mixBlock(outputSamples, from, chunkEnd - from, v.voice.gain);
+    }
+
+    renderedSamples = chunkEnd;
+
+    const elapsedMs = performance.now() - startTime;
+    const progressFraction = renderedSamples / totalSamples;
+    if (onProgress) {
+      onProgress({
+        renderedSamples,
+        totalSamples,
+        progressFraction,
+        percent: progressFraction * 100,
+        elapsedMs,
+        estimatedRemainingMs: Math.max(0, (elapsedMs / progressFraction) - elapsedMs),
+      });
+    }
+
+    if (renderedSamples < totalSamples) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+  }
+
+  let peak = 0;
+  for (let i = 0; i < totalSamples; i++) {
+    const abs = Math.abs(outputSamples[i]);
+    if (abs > peak) peak = abs;
+  }
+
+  const wavBytes = encodeWAV(outputSamples, sampleRate, bitDepth, normalize);
+  const blob = new Blob([wavBytes], { type: 'audio/wav' });
+  const downloadUrl = URL.createObjectURL(blob);
+  const filename = `unbounded-organ_rank${voices.length}_${sampleRate}Hz_${bitDepth}bit.wav`;
+
+  return {
+    wavBytes,
+    blob,
+    downloadUrl,
+    filename,
+    samples: outputSamples,
+    totalSamples,
+    totalDurationS,
+    voices,
+    pool,
+    rank: describeRank(voices, atm),
+    silentVoices: built.filter(v => v.startSample >= totalSamples).length,
     peakAmplitude: peak,
     sampleRate,
     bitDepth,

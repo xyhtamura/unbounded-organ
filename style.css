@@ -1141,3 +1141,39 @@ code, kbd {
 @media (max-width: 480px) { .pipe-scale canvas { height: 300px; } }
 .frequency-entry { display: grid; gap: .3rem; color: var(--ink-on-dark-2); font-size: .85rem; }
 .frequency-entry input { width: 10rem; max-width: 100%; }
+
+/* ---- View tabs and the rank view ------------------------------------- */
+
+/* The panels are items of the 12-column main grid. The view wrappers must not
+   become items themselves, or each collapses to a single column. */
+#view-pipe, #view-rank { display: contents; }
+#view-pipe[hidden], #view-rank[hidden] { display: none; }
+
+.view-tabs { border-bottom: 1px solid var(--hairline); background: var(--lacquer-deep); }
+.view-tabs-inner { display: flex; gap: .4rem; padding: .5rem 0; }
+.view-tab {
+  padding: .45rem 1rem; border: 1px solid var(--metal-dim); background: transparent;
+  color: var(--ink-on-dark); cursor: pointer; font: .95rem var(--font-body);
+}
+.view-tab[aria-pressed="true"] { background: var(--timber); border-color: var(--bone); }
+.view-tab:focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
+
+.rank-roll {
+  display: block; width: 100%; height: 420px;
+  border: 1px solid var(--hairline); background: var(--lacquer-deep);
+  touch-action: pan-y; cursor: crosshair;
+}
+.rank-roll:focus-visible { outline: 2px solid var(--bone); outline-offset: 2px; }
+@media (max-width: 480px) { .rank-roll { height: 340px; } }
+
+.panel-rank           { grid-column: 1 / -1; border-radius: 4px 24px 5px 18px; }
+.panel-rank-controls  { grid-column: span 7; border-radius: 18px 3px 22px 4px; }
+.panel-rank-render    { grid-column: span 5; border-radius: 3px 26px 4px 19px; }
+
+.rank-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.rank-summary { margin: .7rem 0 .2rem; color: var(--ink-on-dark); font-size: 1rem; }
+.rank-pool, .rank-voice { margin: .2rem 0; color: var(--ink-on-dark-2); font-size: .88rem; }
+.rank-pool[data-over="true"] { color: #d59b7f; }
+.render-progress { margin: .5rem 0; color: var(--ink-on-dark-2); font-size: .9rem; }
+.render-output { display: flex; gap: .7rem; align-items: center; flex-wrap: wrap; }
+.render-output audio { max-width: 100%; }

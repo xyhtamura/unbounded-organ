@@ -15,6 +15,7 @@ import {
 import { PRESETS, presetById, toAtmosphere } from './atmospheres.js';
 import { applySkin, kindClassFor } from './skin.js';
 import { createScaleView } from './scale-view.js';
+import { createRankPanel } from './rank-panel.js';
 import {
   describeDigitalMedium,
   quoteRenderCost,
@@ -45,6 +46,9 @@ const MAX_LENGTH_M = 4.0075e7; // 40,075 km (Earth circumference)
 const LOG_MIN = Math.log(MIN_LENGTH_M);
 const LOG_MAX = Math.log(MAX_LENGTH_M);
 const scaleView = createScaleView(document.getElementById('pipe-scale'));
+// The rank view reads the atmosphere from this module, so a change here has to
+// reach it. Assigned once the DOM exists; null until then.
+let rankPanel = null;
 
 // Application state
 const state = {
@@ -254,6 +258,7 @@ function updateUi() {
 
   const pipeDesc = describePipe(lengthM, atm, mode);
   scaleView.update({ lengthM, mode, hz: pipeDesc.hz });
+  rankPanel?.refresh();
   document.getElementById('frequency-number').value = pipeDesc.hz.toPrecision(7);
   const medDesc = describeDigitalMedium(lengthM, atm, mode, sampleRate, bitDepth);
   const atmDesc = describeAtmosphere(atm);
@@ -821,10 +826,35 @@ function setupEventListeners() {
 }
 
 // Initialization on DOMContentLoaded
+/**
+ * The two views are one instrument. The rank view reads the atmosphere from
+ * here and owns everything else, so switching tabs changes what is being
+ * composed rather than what the model is.
+ */
+function setupViewTabs() {
+  const rank = createRankPanel(document.getElementById('view-rank'), {
+    getAtmosphere: () => state.atm,
+  });
+  const views = {
+    pipe: document.getElementById('view-pipe'),
+    rank: document.getElementById('view-rank'),
+  };
+  const tabs = [...document.querySelectorAll('.view-tab')];
+  const show = (name) => {
+    for (const [key, node] of Object.entries(views)) node.hidden = key !== name;
+    for (const tab of tabs) tab.setAttribute('aria-pressed', String(tab.dataset.view === name));
+    if (name === 'rank') rank.refresh();
+  };
+  for (const tab of tabs) tab.addEventListener('click', () => show(tab.dataset.view));
+  return rank;
+}
+
+// Initialization on DOMContentLoaded
 window.addEventListener('DOMContentLoaded', () => {
   initDom();
   populateDropdowns();
   populateQuickJumps();
   setupEventListeners();
   updateUi();
+  rankPanel = setupViewTabs();
 });

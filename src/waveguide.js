@@ -15,6 +15,13 @@
 import { pipeFundamentalHz } from './physics.js';
 import { MAX_SAFE_DELAY_SAMPLES } from './digital_medium.js';
 
+/**
+ * Extra samples past the delay length, so the interpolators can read their
+ * taps without wrapping. `polyphony.js` adds this per voice when it works out
+ * what a rank will allocate, which is why it is a constant and not a literal.
+ */
+export const RING_PADDING_SAMPLES = 4;
+
 export const EXCITATION_TYPES = [
   { id: 'impulse', name: 'Impulse (Unit delta at t=0)', description: 'Excites all modes uniformly with zero phase spread.' },
   { id: 'noise_burst', name: 'Noise burst (Broadband stochastic pulse)', description: 'Excites all modes randomly; realistic transient burst.' },
@@ -34,6 +41,10 @@ export function createWaveguide({
   excitationGain = 0.8,
   interpolatorType = 'linear',
   lossFactor = 0.9995, // slight damping per round trip for acoustic decay
+  // How long the excitation is allowed to keep driving the pipe. An organ note
+  // ends when the pallet closes: the drive stops and the pipe rings down at its
+  // own rate. Infinity is the single-pipe behaviour, where nothing closes.
+  sustainSamples = Infinity,
 }) {
   const f1 = pipeFundamentalHz(lengthM, atm, mode);
   // Physical round-trip transit time in a pipe of length L is 2L/c
@@ -48,7 +59,7 @@ export function createWaveguide({
 
   const intDelay = Math.max(1, Math.floor(totalDelaySamples));
   const fracDelay = totalDelaySamples - intDelay;
-  const bufferSize = intDelay + 4; // safety padding for interpolator taps
+  const bufferSize = intDelay + RING_PADDING_SAMPLES;
 
   const ringBuffer = new Float64Array(bufferSize);
   let writePtr = 0;
@@ -119,6 +130,7 @@ export function createWaveguide({
   /** Generate one excitation sample. */
   function getExcitation() {
     let ex = 0;
+    if (sampleIndex >= sustainSamples) return 0;
     if (excitationType === 'impulse') {
       if (sampleIndex === 0) ex = 1.0;
     } else if (excitationType === 'noise_burst') {
@@ -158,6 +170,22 @@ export function createWaveguide({
     }
   }
 
+  /**
+   * Add this pipe's output into a buffer instead of replacing it, which is
+   * what a rank needs: several pipes share one air.
+   */
+  function mixBlock(outArray, startIdx = 0, count = outArray.length, gain = 1) {
+    const end = startIdx + count;
+    for (let i = startIdx; i < end; i++) {
+      outArray[i] += step() * gain;
+    }
+  }
+
+  /** Advance the pipe without writing anywhere. Used to keep a rank in step. */
+  function skip(count) {
+    for (let i = 0; i < count; i++) step();
+  }
+
   return {
     lengthM,
     atm,
@@ -170,6 +198,9 @@ export function createWaveguide({
     fracDelay,
     step,
     processBlock,
+    mixBlock,
+    skip,
+    sustainSamples,
     getSampleIndex: () => sampleIndex,
   };
 }

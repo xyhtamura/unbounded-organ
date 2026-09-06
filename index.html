@@ -31,7 +31,16 @@
   </div>
 </header>
 
+<nav class="view-tabs" aria-label="Instrument views">
+  <div class="container view-tabs-inner">
+    <button type="button" class="view-tab" data-view="pipe" aria-pressed="true">Pipe</button>
+    <button type="button" class="view-tab" data-view="rank" aria-pressed="false">Rank</button>
+  </div>
+</nav>
+
 <main class="container">
+
+<div id="view-pipe">
 
   <!-- ================= 1. PIPE & CATEGORY ================= -->
   <section class="panel panel-pipe" aria-labelledby="h-pipe">
@@ -360,6 +369,82 @@
 
     <pre class="score-box" id="score-output"></pre>
   </section>
+
+</div><!-- /#view-pipe -->
+
+<div id="view-rank" hidden>
+
+  <section class="panel panel-rank" aria-labelledby="h-rank">
+    <div class="panel-header">
+      <h2 id="h-rank">Rank</h2>
+      <div class="rank-actions">
+        <button type="button" class="btn btn-sm" data-toggle-mode>Open / stopped</button>
+        <button type="button" class="btn btn-sm" data-remove>Remove pipe</button>
+        <button type="button" class="btn btn-sm" data-clear>Clear</button>
+      </div>
+    </div>
+
+    <p class="panel-description">
+      Several pipes sounding at once. The vertical axis is pipe length, not pitch,
+      because past the hearing floor there is no note to place on a pitch axis.
+      Click to place a pipe, drag it to move it, drag its right edge to change how
+      long the pallet stays open.
+    </p>
+
+    <canvas data-roll class="rank-roll" aria-label="Rank roll: pipe length against time"></canvas>
+
+    <p class="rank-summary" data-rank-summary>—</p>
+    <p class="rank-pool" data-pool>—</p>
+    <p class="rank-voice" data-voice>—</p>
+  </section>
+
+  <section class="panel panel-rank-controls" aria-labelledby="h-rank-controls">
+    <div class="panel-header">
+      <h2 id="h-rank-controls">Rank settings</h2>
+    </div>
+
+    <div class="control-grid">
+      <div class="field">
+        <label class="field-label" for="rank-preset">Preset</label>
+        <select id="rank-preset" data-preset></select>
+        <p class="field-help" data-preset-note></p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="rank-span">Timeline (seconds)</label>
+        <input type="number" id="rank-span" data-span min="0.1" step="any" value="8">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="rank-rate">Sample rate</label>
+        <select id="rank-rate" data-rate></select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="rank-depth">Bit depth</label>
+        <select id="rank-depth" data-depth></select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="rank-transpose">Common transposition (octaves)</label>
+        <input type="range" id="rank-transpose" data-transpose min="-8" max="8" step="1" value="0">
+        <p class="field-help" data-transpose-note>No shift.</p>
+        <button type="button" class="btn btn-sm" data-transpose-apply>Apply transposition</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel panel-rank-render" aria-labelledby="h-rank-render">
+    <div class="panel-header">
+      <h2 id="h-rank-render">Render rank</h2>
+      <button type="button" class="btn" data-render>Render rank</button>
+    </div>
+    <p class="field-help" data-route></p>
+    <p class="render-progress" data-progress></p>
+    <div class="render-output" data-output></div>
+  </section>
+
+</div><!-- /#view-rank -->
 
 </main>
 
