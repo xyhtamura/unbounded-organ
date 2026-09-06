@@ -1134,7 +1134,7 @@ code, kbd {
 .scale-toolbar button { padding: .4rem .65rem; border: 1px solid var(--metal-dim); background: transparent; color: var(--ink-on-dark); cursor: pointer; font: .85rem var(--font-body); }
 .scale-toolbar button:hover, .scale-toolbar button[aria-pressed="true"] { background: var(--timber); }
 .scale-toolbar button:focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
-.pipe-scale canvas { display: block; width: 100%; height: 340px; }
+.pipe-scale canvas { display: block; width: 100%; height: 340px; touch-action: pan-y; }
 .pipe-scale figcaption { padding: .7rem 1rem; }
 .pipe-scale figcaption p { margin: 0; color: var(--ink-on-dark); font-size: .95rem; }
 .pipe-scale figcaption .scale-caption { margin-top: .35rem; color: var(--ink-on-dark-2); font-size: .85rem; }

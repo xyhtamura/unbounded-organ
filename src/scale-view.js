@@ -1,5 +1,7 @@
 /** Dimensioned comparison drawing. No audio or physics state is owned here. */
 import { fmtLength, fmtFreq } from './format.js';
+import { HEARING_FLOOR_HZ } from './physics.js';
+import { drawTube, contactShadow, clampTilt, SUPERSAMPLE, TILT_MIN, TILT_MAX } from './tube-view.js';
 
 // Generic objects have specified dimensions, not claimed average sizes.
 export const REFERENCES = [
@@ -25,8 +27,13 @@ export function createScaleView(root) {
   const ctx = canvas.getContext('2d');
   const summary = root.querySelector('[data-summary]');
   const lock = root.querySelector('[data-lock]');
+  const note = root.querySelector('[data-mode-note]');
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   let pipe, span, target, locked = false, frame = 0, lastTime = 0;
+  // Rotation is decorative. Every dimension stays in the summary text, the
+  // aria-label, and the vertical scale, none of which the spin touches.
+  const view = { spin: 0.9, tilt: 0.26, dragging: false, x: 0, y: 0, mouse: false };
+  let solid = false;
   const schedule = () => { if (!frame) frame = requestAnimationFrame(draw); };
   const label = (text, x, y, color = '#d7cbb0', align = 'left') => {
     ctx.fillStyle = color; ctx.textAlign = align; ctx.fillText(text, x, y);
@@ -75,8 +82,12 @@ export function createScaleView(root) {
     if(Math.abs(Math.log(target/span))<.001) span=target;
     const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
     if(!w||!h)return;
-    if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}
-    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+    // The backing store is drawn larger than the element and downsampled on
+    // display, which is the whole of the antialiasing. Offline audio pays no
+    // price for it.
+    const res=dpr*SUPERSAMPLE;
+    if(canvas.width!==Math.round(w*res)||canvas.height!==Math.round(h*res)){canvas.width=Math.round(w*res);canvas.height=Math.round(h*res);}
+    ctx.setTransform(res,0,0,res,0,0);ctx.clearRect(0,0,w,h);
     const bg=ctx.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#152325');bg.addColorStop(1,'#26352e');ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
     ctx.font=`${w<450?10:12}px "IBM Plex Mono", monospace`;ctx.lineWidth=1;
     const base=h-62, usable=base-42, px=usable/span, x=w*.22;
@@ -91,16 +102,28 @@ export function createScaleView(root) {
       ctx.save();
       const referencePixels=r.height*px;
       ctx.globalAlpha=Math.min(1,Math.max(.25,referencePixels/12),Math.max(0,(usable*1.15-referencePixels)/(usable*.15)));
+      contactShadow(ctx,rx,base,Math.max(6,Math.min(referencePixels*.3,64)),4);
       reference(r,rx,base,r.height*px);
       label(r.name,rx,base+21,'#b4c5b8','center');
       label(fmtLength(r.height),rx,base+39,'#95a89e','center');
       ctx.restore();
     });
     const actual=pipe.lengthM*px, ph=Math.min(actual,base+20), pw=w<450?21:29, top=base-ph;
-    const metal=ctx.createLinearGradient(x-pw/2,0,x+pw/2,0);metal.addColorStop(0,'#7e7657');metal.addColorStop(.33,'#e2d5a5');metal.addColorStop(.65,'#b8a979');metal.addColorStop(1,'#6b664c');
-    ctx.fillStyle=metal;ctx.fillRect(x-pw/2,top,pw,ph);
-    ctx.fillStyle=pipe.mode==='open'?'#17211e':'#d2c69a';ctx.beginPath();ctx.ellipse(x,top,pw/2,5,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#c9bc8d';ctx.stroke();
-    ctx.fillStyle='#18231e';if(ph>20)ctx.fillRect(x-pw*.3,base-14,pw*.6,5);
+    // The tube is drawn only where its mode series is sparse, in frame, and
+    // large enough to read. Everywhere else the flat elevation is the drawing.
+    solid = pipe.hz >= HEARING_FLOOR_HZ && ph >= 48 && actual <= usable;
+    if (solid) {
+      drawTube(ctx,{x,base,height:ph,radius:pw/2,mode:pipe.mode,tilt:view.tilt,spin:view.spin,
+        envelopeRadius:Math.min(pw*1.2,(x-30))});
+    } else {
+      const metal=ctx.createLinearGradient(x-pw/2,0,x+pw/2,0);metal.addColorStop(0,'#7e7657');metal.addColorStop(.33,'#e2d5a5');metal.addColorStop(.65,'#b8a979');metal.addColorStop(1,'#6b664c');
+      ctx.fillStyle=metal;ctx.fillRect(x-pw/2,top,pw,ph);
+      ctx.fillStyle=pipe.mode==='open'?'#17211e':'#d2c69a';ctx.beginPath();ctx.ellipse(x,top,pw/2,5,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#c9bc8d';ctx.stroke();
+      ctx.fillStyle='#18231e';if(ph>20)ctx.fillRect(x-pw*.3,base-14,pw*.6,5);
+    }
+    canvas.style.cursor = solid ? (view.dragging ? 'grabbing' : 'grab') : 'default';
+    const noteText = solid ? ' The lobed surface is the fundamental’s pressure envelope; drag to turn the pipe.' : '';
+    if (note && note.textContent !== noteText) note.textContent = noteText;
     const bracket=x-pw/2-13;line(bracket,Math.max(32,top),bracket,base,'#d7cbb0');line(bracket-4,base,bracket+4,base,'#d7cbb0');line(bracket-4,Math.max(32,top),bracket+4,Math.max(32,top),'#d7cbb0');
     label(actual>usable?'↑ Extends beyond view':pipe.mode==='open'?'Open pipe':'Stopped pipe',16,23);
     label(fmtLength(pipe.lengthM),x,base+21,'#e6d8ad','center');
@@ -109,6 +132,25 @@ export function createScaleView(root) {
     canvas.dataset.span=String(span);canvas.dataset.pipePixels=String(actual);
     if(span!==target)schedule();else lastTime=0;
   }
+  canvas.addEventListener('pointerdown',e=>{
+    if(!solid)return;
+    view.dragging=true;view.x=e.clientX;view.y=e.clientY;view.mouse=e.pointerType==='mouse';
+    try{canvas.setPointerCapture(e.pointerId);}catch{}
+    schedule();
+  });
+  canvas.addEventListener('pointermove',e=>{
+    if(!view.dragging)return;
+    view.spin+=(e.clientX-view.x)*.012;view.x=e.clientX;
+    // Vertical drag is mouse-only; on touch the page keeps that axis for scroll.
+    if(view.mouse){view.tilt=clampTilt(view.tilt+(e.clientY-view.y)*.004);view.y=e.clientY;}
+    schedule();
+  });
+  for(const done of ['pointerup','pointercancel']) canvas.addEventListener(done,e=>{
+    if(!view.dragging)return;
+    view.dragging=false;
+    try{if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);}catch{}
+    schedule();
+  });
   lock.addEventListener('click',()=>{
     locked=!locked;lock.setAttribute('aria-pressed',String(locked));lock.textContent=locked?'Unlock view':'Lock view';
     target=locked?span:cameraSpan(pipe.lengthM,span);schedule();
