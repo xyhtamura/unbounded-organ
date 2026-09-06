@@ -18,11 +18,11 @@
       <p class="kicker">Digital waveguide instrument</p>
       <h1>The Unbounded Organ</h1>
       <p class="standfirst">
-        One 1D physical waveguide evaluated across pipe lengths from 8.575&nbsp;mm to 40,075&nbsp;km.
-        The model does not change; as length scales, its output drifts from a note to an echo to a continuous drift.
+        A one-dimensional physical waveguide evaluated across pipe lengths from 8.575&nbsp;mm to 40,075&nbsp;km.
+        The model does not change; as the pipe length scales, its output shifts from a note to an echo, and eventually into a continuous drift.
       </p>
       <nav class="masthead-links">
-        <a href="explainer.html" class="doc-link">Read the model &rarr;</a>
+        <a href="explainer.html" class="doc-link">Read the model explainer &rarr;</a>
       </nav>
     </div>
 
@@ -36,10 +36,10 @@
   <!-- ================= 1. PIPE & CATEGORY ================= -->
   <section class="panel panel-pipe" aria-labelledby="h-pipe">
     <div class="panel-header">
-      <h2 id="h-pipe">The pipe</h2>
+      <h2 id="h-pipe">Pipe</h2>
     </div>
     <p class="panel-description">
-      Set length across ten orders of magnitude. The readout reports fundamental frequency, mode count, and acoustic regime.
+      Set the pipe length across ten orders of magnitude. The readout reports the fundamental frequency, mode count, and acoustic regime.
     </p>
 
     <div class="length-controls">
@@ -97,10 +97,10 @@
   <!-- ================= 2. DIGITAL MEDIUM ================= -->
   <section class="panel panel-digital-medium" aria-labelledby="h-digital">
     <div class="panel-header">
-      <h2 id="h-digital">The digital medium</h2>
+      <h2 id="h-digital">Digital Medium</h2>
     </div>
     <p class="panel-description">
-      Sample rate sets the represented frequency band. Bit depth sets output resolution.
+      The sample rate sets the represented frequency band, and the bit depth sets the output resolution.
     </p>
 
     <div class="grid-2col">
@@ -143,10 +143,10 @@
   <!-- ================= 3. WAVEGUIDE & INTERPOLATOR ================= -->
   <section class="panel panel-waveguide" aria-labelledby="h-waveguide">
     <div class="panel-header">
-      <h2 id="h-waveguide">The resonator</h2>
+      <h2 id="h-waveguide">Resonator</h2>
     </div>
     <p class="panel-description">
-      A bidirectional delay line produces the harmonic series mechanically. The table reports fractional-delay interpolator phase dispersion.
+      A bidirectional delay line produces the harmonic series mechanically. The table reports the phase dispersion of the fractional-delay interpolator.
     </p>
 
     <div class="grid-2col">
@@ -182,10 +182,10 @@
   <!-- ================= 4. ATMOSPHERE ================= -->
   <section class="panel panel-atmosphere" aria-labelledby="h-atmosphere">
     <div class="panel-header">
-      <h2 id="h-atmosphere">The air</h2>
+      <h2 id="h-atmosphere">Air</h2>
     </div>
     <p class="panel-description">
-      Set the three parameters used to derive scale height, acoustic cutoff frequency, and critical pipe length.
+      Set the three parameters used to derive the scale height, acoustic cutoff frequency, and critical pipe length.
     </p>
 
     <div class="field-group">
@@ -235,7 +235,7 @@
       <h2 id="h-limits">Limits</h2>
     </div>
     <p class="panel-description">
-      Physical failure modes of the atmospheric column alongside representational limits of the digital medium.
+      This panel compares the physical failure modes of the atmospheric column with the representational limits of the digital medium.
     </p>
 
     <div class="limits-matrix">
@@ -267,7 +267,7 @@
       <h2 id="h-render">Render</h2>
     </div>
     <p class="panel-description">
-      Evaluate the waveguide sample by sample into an uncompressed WAV file at its true rate.
+      Render the waveguide sample by sample into an uncompressed WAV file at its true rate.
     </p>
 
     <div class="render-config-row">
@@ -332,14 +332,14 @@
   <!-- ================= 7. SCORE EXPORT ================= -->
   <section class="panel panel-score" aria-labelledby="h-score">
     <div class="panel-header">
-      <h2 id="h-score">The score</h2>
+      <h2 id="h-score">Score</h2>
       <div class="score-actions">
         <button type="button" id="btn-copy-score" class="btn btn-sm">Copy score</button>
         <button type="button" id="btn-download-score" class="btn btn-sm">Download .md</button>
       </div>
     </div>
     <p class="panel-description">
-      Export the current specification, atmosphere, and medium settings as a plain Markdown score.
+      Export the current pipe, atmosphere, and digital medium settings as a plain Markdown score.
     </p>
 
     <pre class="score-box" id="score-output"></pre>
@@ -350,9 +350,9 @@
 <footer class="site-footer">
   <div class="container">
     <p>
-      The delay line has length <code>2L/c</code>. Reflection signs at the boundaries produce the harmonic
-      series mechanically. The atmosphere model reports the acoustic cutoff but does not alter the audio path.
-      <a href="explainer.html">Read the model.</a>
+      The delay line has a length of <code>2L/c</code>. The reflection signs at the boundaries produce the harmonic
+      series mechanically. The atmosphere model reports the acoustic cutoff, but does not alter the audio path.
+      <a href="explainer.html">Read the model explainer.</a>
     </p>
   </div>
 </footer>
