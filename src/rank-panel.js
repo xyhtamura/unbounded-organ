@@ -16,6 +16,7 @@ import {
   equalLengthCeiling, rankSpanS, withVoiceDefaults,
 } from './polyphony.js';
 import { renderRank } from './render.js';
+import { generateRankScore } from './score.js';
 import { SAMPLE_RATE_PRESETS, BIT_DEPTH_OPTIONS } from './digital_medium.js';
 import { FOOT_M } from './physics.js';
 import { fmtLength, fmtFreq, fmtBytes, fmtInt } from './format.js';
@@ -65,6 +66,7 @@ export function createRankPanel(root, { getAtmosphere }) {
     sampleRate: 48000,
     bitDepth: 16,
     excitationType: 'impulse',
+    interpolatorType: 'linear',
     selected: -1,
     rendering: false,
     abort: null,
@@ -96,6 +98,7 @@ export function createRankPanel(root, { getAtmosphere }) {
   const routeNote = el(root, '[data-route]');
   const progress = el(root, '[data-progress]');
   const output = el(root, '[data-output]');
+  const scoreOut = el(root, '[data-score-output]');
 
   /** Everything the view says about the rank, recomputed in one place. */
   function report() {
@@ -143,6 +146,22 @@ export function createRankPanel(root, { getAtmosphere }) {
       state.spanS = Math.ceil(span);
       spanInput.value = String(state.spanS);
     }
+
+    // The score is the durable artifact, so it tracks the rank rather than
+    // waiting to be asked. A rank with a planetary pipe has no other form.
+    scoreOut.textContent = state.voices.length === 0
+      ? 'No pipes. The score follows the rank.'
+      : generateRankScore({
+        voices: state.voices,
+        atm,
+        digitalMedium: {
+          sampleRate: state.sampleRate,
+          bitDepth: state.bitDepth,
+          interpolatorType: state.interpolatorType,
+          excitationType: state.excitationType,
+        },
+        durationSec: Math.max(state.spanS, rankSpanS(state.voices)),
+      });
   }
 
   presetSelect.addEventListener('change', () => {
@@ -294,6 +313,30 @@ export function createRankPanel(root, { getAtmosphere }) {
       state.abort = null;
       renderBtn.textContent = 'Render rank';
     }
+  });
+
+  el(root, '[data-copy-score]').addEventListener('click', async () => {
+    const button = el(root, '[data-copy-score]');
+    try {
+      await navigator.clipboard.writeText(scoreOut.textContent);
+      button.textContent = 'Copied';
+      setTimeout(() => { button.textContent = 'Copy score'; }, 2000);
+    } catch {
+      button.textContent = 'Copy failed';
+      setTimeout(() => { button.textContent = 'Copy score'; }, 2000);
+    }
+  });
+
+  el(root, '[data-download-score]').addEventListener('click', () => {
+    const blob = new Blob([scoreOut.textContent], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `unbounded-organ_rank${state.voices.length}_score.md`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   });
 
   return {

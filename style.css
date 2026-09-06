@@ -1170,6 +1170,8 @@ code, kbd {
 .panel-rank-controls  { grid-column: span 7; border-radius: 18px 3px 22px 4px; }
 .panel-rank-render    { grid-column: span 5; border-radius: 3px 26px 4px 19px; }
 
+.panel-rank-score      { grid-column: 1 / -1; border-radius: 24px 3px 18px 5px; }
+
 .rank-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
 .rank-summary { margin: .7rem 0 .2rem; color: var(--ink-on-dark); font-size: 1rem; }
 .rank-pool, .rank-voice { margin: .2rem 0; color: var(--ink-on-dark-2); font-size: .88rem; }

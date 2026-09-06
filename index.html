@@ -444,6 +444,24 @@
     <div class="render-output" data-output></div>
   </section>
 
+  <section class="panel panel-rank-score" aria-labelledby="h-rank-score">
+    <div class="panel-header">
+      <h2 id="h-rank-score">Rank score</h2>
+      <div class="score-actions">
+        <button type="button" class="btn btn-sm" data-copy-score>Copy score</button>
+        <button type="button" class="btn btn-sm" data-download-score>Download .md</button>
+      </div>
+    </div>
+    <p class="panel-description">
+      The rank, what the set does against the two thresholds, and what it asks of
+      the allocation ceiling, as plain Markdown. At the long end this is the only
+      form the composition has, since the render is unlistenable and in places
+      cannot be allocated at all.
+    </p>
+
+    <pre class="score-box" data-score-output></pre>
+  </section>
+
 </div><!-- /#view-rank -->
 
 </main>

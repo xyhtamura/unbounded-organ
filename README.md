@@ -42,6 +42,13 @@ past the hearing floor there is no note to place on one. Length stays meaningful
 across the whole range, so a common transposition is a rigid shift of the whole
 rank and the roll says how many voices it throws out of hearing.
 
+Its score export carries the rank, what the set does against the two thresholds,
+what the rank asks of the allocation ceiling, and the route the instrument would
+degrade to in order to render it — plus a JSON block the rank can be rebuilt
+from. That last part matters because at the long end the score is the only form
+the composition has: a rank holding a planetary pipe cannot be allocated at any
+useful rate, let alone heard.
+
 Polyphony is paid for in range. Every voice needs its own delay line, and the
 1 GiB allocation ceiling is a ceiling on their sum, so the exchange rate is
 exact: at 48 kHz one pipe reaches 479.5 km, and eight pipes of equal length
@@ -70,7 +77,7 @@ Then open `http://localhost:8000/`.
 
 ## Tests
 
-Ten suites: 159 counted checks across seven of them, and three more that
+Eleven suites: 180 counted checks across eight of them, and three more that
 assert directly. No test framework and no dependencies; the suites are plain ES
 modules. Verified on Node 20.10.
 
@@ -92,7 +99,7 @@ npm test
 | `src/render.js` | Offline chunked renderer with progress events and cancellation |
 | `src/atmospheres.js` | Atmosphere presets: Earth, plus parametric gas calculations |
 | `src/format.js` | Formatting for frequencies, periods, lengths, and byte sizes |
-| `src/score.js` | Markdown composition score generator |
+| `src/score.js` | Markdown score generators, one for a single pipe and one for a rank. The rank score carries the voices, the set report, the pool, the render route, and a JSON block the rank can be rebuilt from |
 | `src/skin.js` | Pushes `--drift`, `--breath`, and `--kind` onto the root element. Touches neither physics nor audio; deleting it leaves a plain instrument |
 | `src/scale-view.js` | Size comparison against dimensioned reference objects on a shared vertical scale |
 | `src/polyphony.js` | The delay-line pool as a budget on the sum rather than on each voice, the set-level regime report, common transposition, and the render route for a rank |
