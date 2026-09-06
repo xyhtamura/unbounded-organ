@@ -4,6 +4,7 @@
 
 import {
   pipeFundamentalHz,
+  pipeLengthForHz,
   describePipe,
   describeAtmosphere,
   criticalLength,
@@ -13,6 +14,7 @@ import {
 } from './physics.js';
 import { PRESETS, presetById, toAtmosphere } from './atmospheres.js';
 import { applySkin, kindClassFor } from './skin.js';
+import { createScaleView } from './scale-view.js';
 import {
   describeDigitalMedium,
   quoteRenderCost,
@@ -42,6 +44,7 @@ const MIN_LENGTH_M = 0.008575; // 8.575 mm (20 kHz)
 const MAX_LENGTH_M = 4.0075e7; // 40,075 km (Earth circumference)
 const LOG_MIN = Math.log(MIN_LENGTH_M);
 const LOG_MAX = Math.log(MAX_LENGTH_M);
+const scaleView = createScaleView(document.getElementById('pipe-scale'));
 
 // Application state
 const state = {
@@ -250,6 +253,8 @@ function updateUi() {
   els.numInput.value = (lengthM / unitFactor).toPrecision(5);
 
   const pipeDesc = describePipe(lengthM, atm, mode);
+  scaleView.update({ lengthM, mode, hz: pipeDesc.hz });
+  document.getElementById('frequency-number').value = pipeDesc.hz.toPrecision(7);
   const medDesc = describeDigitalMedium(lengthM, atm, mode, sampleRate, bitDepth);
   const atmDesc = describeAtmosphere(atm);
   const interpDesc = analyzeModeDeviations({
@@ -636,6 +641,12 @@ function setupEventListeners() {
     if (Number.isFinite(val) && val > 0) {
       setLength(val * unitFactor);
     }
+  });
+
+  document.getElementById('frequency-number').addEventListener('change', (event) => {
+    const hz = Number(event.target.value);
+    if (Number.isFinite(hz) && hz > 0) setLength(pipeLengthForHz(hz, state.atm, state.mode));
+    else updateUi();
   });
 
   els.unitSelect.addEventListener('change', () => {

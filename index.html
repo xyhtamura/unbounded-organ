@@ -59,6 +59,9 @@
           </select>
         </div>
 
+        <label class="frequency-entry">Frequency (Hz)
+          <input type="number" id="frequency-number" step="any" min="0" aria-label="Frequency in Hz">
+        </label>
         <fieldset class="mode-toggle">
           <legend class="visually-hidden">Pipe boundary condition</legend>
           <label><input type="radio" name="pipe-mode" value="open" checked> Open (all harmonics)</label>
@@ -73,6 +76,19 @@
         <div class="quick-jumps" id="quick-jumps"></div>
       </div>
     </div>
+
+    <figure class="pipe-scale" id="pipe-scale" aria-labelledby="scale-heading">
+      <div class="scale-toolbar">
+        <h3 id="scale-heading">Size comparison</h3>
+        <div><button type="button" data-lock aria-pressed="false">Lock view</button>
+        <button type="button" data-fit>Fit pipe</button></div>
+      </div>
+      <canvas aria-label="Pipe length beside dimensioned reference objects" role="img"></canvas>
+      <figcaption>
+        <p data-summary></p>
+        <p class="scale-caption">Reference heights share the pipe’s scale. Pipe width is schematic. Earth is shown beside the straight pipe.</p>
+      </figcaption>
+    </figure>
 
     <!-- Readout Box -->
     <div class="readout-box">

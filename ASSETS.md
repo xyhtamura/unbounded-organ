@@ -14,3 +14,8 @@ The archived bamboo-organ façade in `reference/bamboo-organ-facade.html` is
 drawn entirely in project-authored HTML and CSS. Its structural reference is
 the [Bamboo Organ Foundation](https://bamboo-organ.com/) page; no image or
 ornament from that page is copied or redistributed.
+
+The size comparison in `src/scale-view.js` uses project-authored Canvas geometry
+and gradients. It ships no third-party models, textures, or silhouettes. The
+Earth sphere uses twice the instrument's existing 6,371 km reference radius;
+its grid is schematic and contains no geographic image data (2026-09-06).
